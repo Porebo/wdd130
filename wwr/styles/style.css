@@ -1,0 +1,72 @@
+﻿/*https://webformatter.com/css*/
+/*https://coolors.co/22223b-4a4e69-9a8c98-c9ada7-f2e9e4*/
+body {
+    background-color: #eabd2b;
+}
+header {
+    background-color: #4cff00;
+}
+
+nav a {
+    background-color: white;
+    text-decoration-color: aqua;
+}
+.home-title {
+    background-color: red;
+}
+#content {
+    max-width: 1600px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: beige;
+}
+#hero {
+    text-align: center;
+}
+#hero-img {
+    width: 80%;
+}
+#background {
+    height: 725px;
+    background-color: #eef5c4;
+}
+h4 {
+    background-color: #1ba856;
+}
+.book,
+.join {
+    background-color: #f6f5d3;
+    text-align: center;
+}
+
+.msg h2 {
+    background-color: azure;
+}
+.msg p {
+    background-color: aquamarine;
+}
+.icon {
+    width: 80px;
+}
+/*------------------------footer------------------------------------*/
+
+footer {
+    background-color: #22223b;
+    color: #f2e9e4;
+}
+footer a {
+    background-color: #22223b;
+    color: #f2e9e4;
+}
+footer a:hover,
+.book:hover,
+.join:hover,
+nav a:hover {
+    background-color: #9a8c89;
+    text-decoration:underline;
+}
+footer p {
+    background-color: #22223b;
+    color: #f2e9e4;
+    font-size:1.2em;
+}

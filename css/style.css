@@ -1,7 +1,8 @@
-body {
+/*body {
     text-align: center;
-}
-nav {
+}*/
+nav, footer {
+    text-align: center;
     background-color: steelblue;
     padding: 10px;
 }
@@ -12,15 +13,32 @@ a {
 }
 h1, h2 {
     color: steelblue;
+    text-align: center;
 }
 img {
-    width: 800px;
+    width: 40%;
     border: 4px solid steelblue;
+    display: block;
+    margin: 0 auto;
 }
 p {
     padding: 10px;
+    text-align: center;
 }
 #active{
     background-color: white;
     color: steelblue;
 }
+a:hover {
+    background-color: white;
+    color: steelblue;
+}
+a {
+    font-size: 1.5em;
+    color: white;
+    margin: 40px;
+    line-height: 1.5em;
+}
+/** {
+    border: 2px solid blue;
+}*/
