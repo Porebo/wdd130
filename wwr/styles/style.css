@@ -20,7 +20,7 @@ header {
 nav a {
     text-align: center;
     background-color: white;
-    text-decoration-color: none;
+    text-decoration-color: #eef1ea;
 }
 nav a:hover {
     background-color: #9a8c89;
