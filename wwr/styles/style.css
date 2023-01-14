@@ -11,7 +11,7 @@ body {
     background-color: #eabd2b;
 }
 header {
-    background-color: #4cff00;
+    background-color: #eabd2b;
 }
 #content {
     max-width: 1600px;
@@ -44,8 +44,8 @@ h4 {
 }
 .book,
 .join {
-    background-color: #396E94;
-    color: #D4AC0D;
+    background-color: #eef1ea;
+    color: #121110;
     text-decoration: none;
 }
 .book:hover, .join:hover {
@@ -61,14 +61,14 @@ h4 {
     background-color: #D4AC0D;
 }
 .msg h2 {
-    background-color: black;
+    background-color: #eabd2b;
 }
 .msg p {
-    background-color: black;
+    background-color: #eabd2b;
 }
 footer {
-    background-color: #5151c8;
-    color: white;
+    background-color: #eabd2b;
+    color: black;
 }
 footer p {
     font-size:1.2em;
@@ -77,7 +77,7 @@ footer p a:hover{
     text-decoration: underline;
 }
 footer a {
-    color: #d4ac0d;
+    color: black;
     text-decoration: none;
 }
 footer a:hover {
