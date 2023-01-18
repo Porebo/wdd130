@@ -1,17 +1,32 @@
 ﻿html{
     font-family: 'Merienda', cursive;
 }
+.home-title{
+    font-family: 'Merienda', cursive;
+    font-size: 2em;
+    margin-top: 10px;
+}
 .logo {
     width: 80px;
 }
+#logo_link{
+    padding-top: 5px;
+}
 .icon {
     width: 80px;
+    padding-top: 10px;
 }
 #hero-img {
     width: 100%;
 }
 body {
     background-color: #eabd2b;
+    font-size: 22px;
+    margin: 0;
+    padding: 0;
+}
+h2{
+    margin: 0;
 }
 header {
     background-color: #eabd2b;
@@ -24,6 +39,8 @@ nav a {
     text-align: center;
     background-color: white;
     text-decoration-color: #eef1ea;
+    text-decoration: none;
+    padding: 35px;
 }
 nav a:hover {
     background-color: #9a8c89;
@@ -50,6 +67,10 @@ h4 {
     background-color: #eef1ea;
     color: #121110;
     text-decoration: none;
+    font-size: 18px;
+    padding: 15px 30px;
+    margin-top: 50px;
+    border-radius: 5px;
 }
 .book:hover, .join:hover {
     background-color: white;
@@ -62,16 +83,22 @@ h4 {
 }
 .msg {
     background-color: #D4AC0D;
+    line-height: 1.5em;
+    padding: 35px;
 }
 .msg h2 {
     background-color: #eabd2b;
 }
 .msg p {
     background-color: #eabd2b;
+    font-size: .8em;
+    padding-bottom: 15px;
 }
 footer {
     background-color: #eabd2b;
     color: black;
+    padding: 25px 50px;
+    margin-top: 200px;
 }
 footer p {
     font-size:1.2em;
@@ -86,4 +113,16 @@ footer a {
 footer a:hover {
     color: black;
     text-decoration: underline;
+}
+footer .social img{
+    padding-top: 15px;
+} 
+.rivers-card, .camping-card, .rapids-card {
+    margin: 200px 0;
+}
+.card-img {
+    border: 10px solid #d9c2a3;
+}
+main section img {
+    box-sizing: border-box;
 }
