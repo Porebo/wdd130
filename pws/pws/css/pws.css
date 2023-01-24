@@ -1,0 +1,8 @@
+body div p{
+    text-align: center;
+    font-size: 40px;
+    font-weight: 500;
+    font-family: "Sofia", sans-serif;
+    font-style: oblique;
+    color: rgb(28, 178, 20);
+}
