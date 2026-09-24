@@ -1,6 +1,7 @@
 (function () {
   var dataUrl = window.ACCOUNTING_CONFIG && window.ACCOUNTING_CONFIG.dataUrl || "data/accounts.json";
   var currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  var dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   var sortDirections = { accounts: "asc", transactions: "desc", journal: "desc" };
   var github = window.ACCOUNTING_CONFIG && window.ACCOUNTING_CONFIG.github;
   var tokenKey = "accounting.githubToken";
@@ -45,7 +46,15 @@
     if (!value) {
       return "-";
     }
-    return value;
+    // Dates are stored as YYYY-MM-DD; read them as UTC so they never shift a day in local time.
+    var parsed = new Date(value + "T00:00:00Z");
+    return isNaN(parsed) ? value : dateFormat.format(parsed);
+  }
+
+  function sortedChart(data) {
+    return data.chartOfAccounts.slice().sort(function (a, b) {
+      return a.code.localeCompare(b.code);
+    });
   }
 
   function accountLabel(account) {
@@ -78,8 +87,10 @@
     var accounts = data.accounts.filter(function (account) {
       return account.balanceCents !== 0;
     }).sort(function (a, b) {
-      return compareDates(a.dueDate, b.dueDate, sortDirections.accounts);
+      return compareDates(a.dueDate || "", b.dueDate || "", sortDirections.accounts);
     });
+    var hidden = data.accounts.length - accounts.length;
+    setText("accounts-hidden", hidden ? hidden + " paid-off " + (hidden === 1 ? "account" : "accounts") + " with a $0.00 balance not shown." : "");
 
     if (accounts.length === 0) {
       var emptyRow = document.createElement("tr");
@@ -97,10 +108,10 @@
 
       row.appendChild(makeCell(account.bank));
       row.appendChild(makeCell(accountLabel(account)));
-      row.appendChild(makeCell(date(account.dueDate)));
+      row.appendChild(makeCell(date(account.dueDate), "date"));
       row.appendChild(makeCell(money(remainingMinimumDue(account)), "amount"));
       row.appendChild(makeCell(money(account.balanceCents), "amount"));
-      row.appendChild(makeCell(date(account.completedPaymentDate)));
+      row.appendChild(makeCell(date(account.completedPaymentDate), "date"));
       row.appendChild(makeCell(status, statusClass));
       body.appendChild(row);
     });
@@ -119,7 +130,7 @@
     }).forEach(function (transaction) {
       var account = accounts[transaction.accountId];
       var row = document.createElement("tr");
-      row.appendChild(makeCell(date(transaction.date)));
+      row.appendChild(makeCell(date(transaction.date), "date"));
       row.appendChild(makeCell(account ? accountLabel(account) : transaction.accountId));
       row.appendChild(makeCell(transaction.description));
       row.appendChild(makeCell(money(transaction.amountCents), "amount"));
@@ -199,14 +210,20 @@
     body.innerHTML = "";
     data.journalEntries.slice().sort(function (a, b) {
       return compareDates(a.date + a.number, b.date + b.number, sortDirections.journal);
-    }).forEach(function (entry) {
+    }).forEach(function (entry, entryIndex) {
       entry.lines.forEach(function (line, index) {
         var account = getChartAccount(data, line.accountId);
         var first = index === 0;
         var row = document.createElement("tr");
+        // Shade and separate whole entries, so an entry's debit and credit lines read as one group.
+        row.className = [
+          entryIndex % 2 ? "journal-entry--alt" : "",
+          first ? "journal-entry-start" : "",
+          index === entry.lines.length - 1 ? "journal-entry-last" : ""
+        ].join(" ").trim();
         row.appendChild(makeCell(first ? entry.number : ""));
         row.appendChild(first ? makePostedCell(data, entry) : makeCell(""));
-        row.appendChild(makeCell(first ? date(entry.date) : ""));
+        row.appendChild(makeCell(first ? date(entry.date) : "", "date"));
         row.appendChild(makeCell(first ? entry.description : ""));
         row.appendChild(makeCell(account ? account.name : line.accountId, line.creditCents > 0 ? "journal-credit" : ""));
         row.appendChild(makeCell(line.debitCents ? money(line.debitCents) : "", "amount"));
@@ -221,7 +238,7 @@
     var activity = buildActivity(data);
     body.innerHTML = "";
 
-    data.chartOfAccounts.forEach(function (account) {
+    sortedChart(data).forEach(function (account) {
       var accountActivity = activity[account.id];
       var row = document.createElement("tr");
       row.appendChild(makeCell(account.code));
@@ -241,7 +258,7 @@
     var totalCredits = 0;
     body.innerHTML = "";
 
-    data.chartOfAccounts.forEach(function (account) {
+    sortedChart(data).forEach(function (account) {
       var accountActivity = activity[account.id];
       var netActivity = accountActivity.debitCents - accountActivity.creditCents;
       if (netActivity === 0) {
@@ -273,11 +290,15 @@
       return result;
     }, { minimumDueCents: 0, balanceCents: 0, paidCents: 0 });
 
-    setText("as-of", data.asOf);
+    var openCount = data.accounts.filter(function (account) {
+      return account.balanceCents !== 0;
+    }).length;
+
+    setText("as-of", date(data.asOf));
     setText("minimum-due-total", money(totals.minimumDueCents));
     setText("balance-total", money(totals.balanceCents));
     setText("paid-total", money(totals.paidCents));
-    setText("account-count", String(data.accounts.length));
+    setText("account-count", openCount + " of " + data.accounts.length);
     renderAccounts(data);
     renderTransactions(data);
     renderJournal(data);
@@ -467,6 +488,9 @@
   }
 
   function loadFromSite() {
+    if (window.location.protocol === "file:") {
+      return Promise.reject(new Error("Browsers block this page from loading " + dataUrl + " when it is opened straight from a file. Open it through a web server instead: the published GitHub Pages site, VS Code's Live Server, or \"python -m http.server\" in the site folder."));
+    }
     return fetch(dataUrl).then(function (response) {
       if (!response.ok) {
         throw new Error("Could not load accounting data.");

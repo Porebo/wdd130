@@ -20,7 +20,13 @@
     .accounting-table th, .accounting-table td { padding: 0.75rem; border-bottom: 1px solid #d9e2ec; text-align: left; vertical-align: top; }
     .accounting-table th { background: #eef5fb; color: #334e68; font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; }
     .accounting-table tbody tr:nth-child(even) { background: #f8fafc; }
-    .accounting-table .amount { color: #17365d; font-weight: 700; white-space: nowrap; }
+    .accounting-table .amount { color: #17365d; font-weight: 700; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+    .accounting-table th.num { text-align: right; }
+    .accounting-table .date { white-space: nowrap; }
+    .journal-table tbody tr:nth-child(even) { background: transparent; }
+    .journal-table tbody tr.journal-entry--alt { background: #f8fafc; }
+    .journal-table tbody tr.journal-entry-start td { border-top: 2px solid #bcccdc; }
+    .journal-table tbody tr:not(.journal-entry-last) td { border-bottom: 0; }
     .accounting-note { background: #eef5fb; border-left: 4px solid #2f75b5; color: #334e68; padding: 1rem 1.25rem; }
     .trial-status { color: #1a7f37; font-weight: 700; }
     .status { font-size: 0.82rem; font-weight: 700; }
@@ -38,8 +44,7 @@
     .posted-toggle { align-items: center; cursor: pointer; display: inline-flex; gap: 0.4rem; }
     @media (max-width: 760px) {
       .accounting-summary { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+    }  </style>
 </head>
 <body>
   <main class="page accounting-page">
@@ -54,7 +59,7 @@
 
     <section class="accounting-summary" aria-label="Account summary">
       <article class="accounting-stat">
-        <div class="accounting-stat__label">Accounts</div>
+        <div class="accounting-stat__label">Open accounts</div>
         <div class="accounting-stat__value" id="account-count">-</div>
       </article>
       <article class="accounting-stat">
@@ -82,8 +87,8 @@
               <th>Bank</th>
               <th>Account</th>
               <th data-sort-header="accounts"><button type="button" class="sort-button" data-sort="accounts">Due date <span class="sort-arrow" aria-hidden="true"></span></button></th>
-              <th>Minimum due</th>
-              <th>Balance</th>
+              <th class="num">Minimum due</th>
+              <th class="num">Balance</th>
               <th>Payment completed</th>
               <th>Status</th>
             </tr>
@@ -93,6 +98,7 @@
           </tbody>
         </table>
       </div>
+      <p class="accounting-meta" id="accounts-hidden"></p>
     </section>
 
     <section class="card accounting-section" aria-labelledby="transactions-heading">
@@ -105,8 +111,8 @@
               <th data-sort-header="transactions"><button type="button" class="sort-button" data-sort="transactions">Date <span class="sort-arrow" aria-hidden="true"></span></button></th>
               <th>Account</th>
               <th>Description</th>
-              <th>Amount</th>
-              <th>Balance after</th>
+              <th class="num">Amount</th>
+              <th class="num">Balance after</th>
             </tr>
           </thead>
           <tbody id="transaction-rows">
@@ -126,7 +132,7 @@
         <span class="accounting-meta" id="journal-save-status" role="status"></span>
       </div>
       <div class="accounting-table-wrap">
-        <table class="accounting-table">
+        <table class="accounting-table journal-table">
           <thead>
             <tr>
               <th>Transaction #</th>
@@ -134,8 +140,8 @@
               <th data-sort-header="journal"><button type="button" class="sort-button" data-sort="journal">Date <span class="sort-arrow" aria-hidden="true"></span></button></th>
               <th>Description</th>
               <th>Account</th>
-              <th>Debit</th>
-              <th>Credit</th>
+              <th class="num">Debit</th>
+              <th class="num">Credit</th>
             </tr>
           </thead>
           <tbody id="journal-rows">
@@ -156,9 +162,9 @@
               <th>Code</th>
               <th>Account</th>
               <th>Type</th>
-              <th>Debits posted</th>
-              <th>Credits posted</th>
-              <th>Net activity</th>
+              <th class="num">Debits posted</th>
+              <th class="num">Credits posted</th>
+              <th class="num">Net activity</th>
             </tr>
           </thead>
           <tbody id="ledger-rows">
@@ -178,8 +184,8 @@
             <tr>
               <th>Code</th>
               <th>Account</th>
-              <th>Debit balance</th>
-              <th>Credit balance</th>
+              <th class="num">Debit balance</th>
+              <th class="num">Credit balance</th>
             </tr>
           </thead>
           <tbody id="trial-balance-rows">
