@@ -51,9 +51,24 @@
     return isNaN(parsed) ? value : dateFormat.format(parsed);
   }
 
+  function sortedClasses(data) {
+    return (data.accountClasses || []).slice().sort(function (a, b) {
+      return a.sortOrder - b.sortOrder;
+    });
+  }
+
+  // Every account code starts with its class initial (A, L, C, R, E).
+  function classOf(data, account) {
+    return (data.accountClasses || []).find(function (accountClass) {
+      return account.code.indexOf(accountClass.classInitial) === 0;
+    });
+  }
+
   function sortedChart(data) {
     return data.chartOfAccounts.slice().sort(function (a, b) {
-      return a.code.localeCompare(b.code);
+      var classA = classOf(data, a);
+      var classB = classOf(data, b);
+      return (classA ? classA.sortOrder : 99) - (classB ? classB.sortOrder : 99) || a.code.localeCompare(b.code);
     });
   }
 
@@ -233,6 +248,60 @@
     });
   }
 
+  function renderChartOfAccounts(data) {
+    var container = document.getElementById("chart-of-accounts");
+    var chart = sortedChart(data);
+    container.innerHTML = "";
+
+    // Show every class, even ones with no accounts yet, so the chart always reflects all five.
+    sortedClasses(data).forEach(function (accountClass) {
+      var accounts = chart.filter(function (account) {
+        return classOf(data, account) === accountClass;
+      });
+
+      var section = document.createElement("section");
+      var heading = document.createElement("h3");
+      var initial = document.createElement("span");
+      var title = document.createElement("span");
+      var balance = document.createElement("span");
+      var list = document.createElement("ul");
+      section.className = "chart-group";
+      initial.className = "chart-class-initial";
+      initial.textContent = accountClass.classInitial;
+      title.textContent = accountClass.className;
+      balance.className = "chart-class-balance";
+      balance.textContent = accountClass.normalBalance;
+      balance.title = "Normal balance";
+      heading.appendChild(initial);
+      heading.appendChild(title);
+      heading.appendChild(balance);
+      list.className = "chart-list";
+
+      if (accounts.length === 0) {
+        var empty = document.createElement("li");
+        empty.className = "chart-empty";
+        empty.textContent = "No accounts yet";
+        list.appendChild(empty);
+      }
+
+      accounts.forEach(function (account) {
+        var item = document.createElement("li");
+        var code = document.createElement("span");
+        var name = document.createElement("span");
+        code.className = "chart-code";
+        code.textContent = account.code;
+        name.textContent = account.name;
+        item.appendChild(code);
+        item.appendChild(name);
+        list.appendChild(item);
+      });
+
+      section.appendChild(heading);
+      section.appendChild(list);
+      container.appendChild(section);
+    });
+  }
+
   function renderLedger(data) {
     var body = document.getElementById("ledger-rows");
     var activity = buildActivity(data);
@@ -299,6 +368,7 @@
     setText("balance-total", money(totals.balanceCents));
     setText("paid-total", money(totals.paidCents));
     setText("account-count", openCount + " of " + data.accounts.length);
+    renderChartOfAccounts(data);
     renderAccounts(data);
     renderTransactions(data);
     renderJournal(data);
