@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, nofollow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Ledger</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .accounting-page { max-width: 1180px; }
+    .accounting-meta { color: #52606d; font-size: 0.92rem; }
+    .accounting-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.5rem 0; }
+    .accounting-stat { background: #fff; border: 1px solid #d9e2ec; border-radius: 10px; padding: 1.1rem 1.25rem; }
+    .accounting-stat__label { color: #52606d; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .accounting-stat__value { color: #17365d; font-size: 1.55rem; font-weight: 700; margin-top: 0.35rem; }
+    .accounting-section { margin-top: 1.5rem; }
+    .accounting-section h2 { margin-bottom: 0.35rem; }
+    .accounting-table-wrap { overflow-x: auto; }
+    .accounting-table { width: 100%; min-width: 880px; border-collapse: collapse; }
+    .accounting-table th, .accounting-table td { padding: 0.75rem; border-bottom: 1px solid #d9e2ec; text-align: left; vertical-align: top; }
+    .accounting-table th { background: #eef5fb; color: #334e68; font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .accounting-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .accounting-table .amount { color: #17365d; font-weight: 700; white-space: nowrap; }
+    .accounting-note { background: #eef5fb; border-left: 4px solid #2f75b5; color: #334e68; padding: 1rem 1.25rem; }
+    .trial-status { color: #1a7f37; font-weight: 700; }
+    .status { font-size: 0.82rem; font-weight: 700; }
+    .status--paid { color: #1a7f37; }
+    .status--open { color: #9a6700; }
+    .accounting-error { background: #fff4f2; border-left: 4px solid #b42318; color: #8a1c13; padding: 1rem; }
+    .sort-button { background: none; border: 0; color: inherit; cursor: pointer; font: inherit; letter-spacing: inherit; padding: 0; text-transform: inherit; }
+    .sort-button:hover, .sort-button:focus-visible { color: #17365d; text-decoration: underline; }
+    .sort-arrow { display: inline-block; margin-left: 0.25rem; }
+    .journal-credit { padding-left: 2rem !important; }
+    .journal-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0.75rem 0; }
+    .journal-button { background: #fff; border: 1px solid #9fb3c8; border-radius: 6px; color: #17365d; cursor: pointer; font: inherit; font-size: 0.9rem; font-weight: 600; padding: 0.45rem 0.9rem; }
+    .journal-button--primary { background: #2f75b5; border-color: #2f75b5; color: #fff; }
+    .journal-button:disabled { cursor: not-allowed; opacity: 0.5; }
+    .posted-toggle { align-items: center; cursor: pointer; display: inline-flex; gap: 0.4rem; }
+    @media (max-width: 760px) {
+      .accounting-summary { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page accounting-page">
+    <header class="hero">
+      <p class="eyebrow">Personal Finance</p>
+      <h1>Account Ledger</h1>
+      <p class="lede">Track statement obligations, payments, and recorded balances in one place.</p>
+      <p class="accounting-meta">Data as of <strong id="as-of">Loading...</strong></p>
+    </header>
+
+    <div id="accounting-error" class="accounting-error" hidden></div>
+
+    <section class="accounting-summary" aria-label="Account summary">
+      <article class="accounting-stat">
+        <div class="accounting-stat__label">Accounts</div>
+        <div class="accounting-stat__value" id="account-count">-</div>
+      </article>
+      <article class="accounting-stat">
+        <div class="accounting-stat__label">Minimums due</div>
+        <div class="accounting-stat__value" id="minimum-due-total">-</div>
+      </article>
+      <article class="accounting-stat">
+        <div class="accounting-stat__label">Recorded balances</div>
+        <div class="accounting-stat__value" id="balance-total">-</div>
+      </article>
+      <article class="accounting-stat">
+        <div class="accounting-stat__label">Payments recorded</div>
+        <div class="accounting-stat__value" id="paid-total">-</div>
+      </article>
+    </section>
+
+    <section class="card accounting-section" aria-labelledby="accounts-heading">
+      <p class="eyebrow">Accounts</p>
+      <h2 id="accounts-heading">Upcoming obligations</h2>
+      <p class="accounting-meta">Balances are recorded values from the available statements and payment updates.</p>
+      <div class="accounting-table-wrap">
+        <table class="accounting-table">
+          <thead>
+            <tr>
+              <th>Bank</th>
+              <th>Account</th>
+              <th data-sort-header="accounts"><button type="button" class="sort-button" data-sort="accounts">Due date <span class="sort-arrow" aria-hidden="true"></span></button></th>
+              <th>Minimum due</th>
+              <th>Balance</th>
+              <th>Payment completed</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="account-rows">
+            <tr><td colspan="7">Loading accounts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card accounting-section" aria-labelledby="transactions-heading">
+      <p class="eyebrow">Transactions</p>
+      <h2 id="transactions-heading">Payment history</h2>
+      <div class="accounting-table-wrap">
+        <table class="accounting-table">
+          <thead>
+            <tr>
+              <th data-sort-header="transactions"><button type="button" class="sort-button" data-sort="transactions">Date <span class="sort-arrow" aria-hidden="true"></span></button></th>
+              <th>Account</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Balance after</th>
+            </tr>
+          </thead>
+          <tbody id="transaction-rows">
+            <tr><td colspan="5">Loading transactions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card accounting-section" aria-labelledby="journal-heading">
+      <p class="eyebrow">General Journal</p>
+      <h2 id="journal-heading">Daily activity</h2>
+      <p class="accounting-meta">Each transaction is recorded as balanced debit and credit lines before posting.</p>
+      <div class="journal-toolbar">
+        <button type="button" class="journal-button journal-button--primary" id="journal-save" disabled>Save to GitHub</button>
+        <button type="button" class="journal-button" id="journal-token">Connect GitHub</button>
+        <span class="accounting-meta" id="journal-save-status" role="status"></span>
+      </div>
+      <div class="accounting-table-wrap">
+        <table class="accounting-table">
+          <thead>
+            <tr>
+              <th>Transaction #</th>
+              <th>Posted</th>
+              <th data-sort-header="journal"><button type="button" class="sort-button" data-sort="journal">Date <span class="sort-arrow" aria-hidden="true"></span></button></th>
+              <th>Description</th>
+              <th>Account</th>
+              <th>Debit</th>
+              <th>Credit</th>
+            </tr>
+          </thead>
+          <tbody id="journal-rows">
+            <tr><td colspan="7">Loading journal...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card accounting-section" aria-labelledby="ledger-heading">
+      <p class="eyebrow">General Ledger</p>
+      <h2 id="ledger-heading">Posted account activity</h2>
+      <p class="accounting-meta">This is the posting layer between the journal and the trial balance.</p>
+      <div class="accounting-table-wrap">
+        <table class="accounting-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Account</th>
+              <th>Type</th>
+              <th>Debits posted</th>
+              <th>Credits posted</th>
+              <th>Net activity</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-rows">
+            <tr><td colspan="6">Loading ledger...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card accounting-section" aria-labelledby="trial-balance-heading">
+      <p class="eyebrow">Trial Balance</p>
+      <h2 id="trial-balance-heading">Activity trial balance</h2>
+      <p class="accounting-note">This first trial balance reflects journal activity only. Opening balances are not entered yet, so it is not a complete statement of financial position.</p>
+      <div class="accounting-table-wrap">
+        <table class="accounting-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Account</th>
+              <th>Debit balance</th>
+              <th>Credit balance</th>
+            </tr>
+          </thead>
+          <tbody id="trial-balance-rows">
+            <tr><td colspan="4">Loading trial balance...</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="2">Totals <span id="trial-balance-status" class="trial-status"></span></th>
+              <th id="trial-balance-debits" class="amount">-</th>
+              <th id="trial-balance-credits" class="amount">-</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script>
+    window.ACCOUNTING_CONFIG = {
+      dataUrl: "accounts.json"
+    };
+  </script>
+  <script src="accounting.js"></script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+{
+  "asOf": "2026-09-23",
+  "chartOfAccounts": [
+    {
+      "id": "cash-checking",
+      "code": "1000",
+      "name": "Checking account",
+      "type": "asset",
+      "normalBalance": "debit"
+    },
+    {
+      "id": "citi-aadvantage-3006",
+      "code": "2100",
+      "name": "Citi AAdvantage Mastercard ending in 3006",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "citi-costco-8182",
+      "code": "2101",
+      "name": "Costco Anywhere Visa ending in 8182",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "synchrony-amazon-9883",
+      "code": "2102",
+      "name": "Amazon Synchrony ending in 9883",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "synchrony-lowes",
+      "code": "2103",
+      "name": "Lowe's account",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "goldman-gm-rewards",
+      "code": "2104",
+      "name": "GM Rewards Mastercard",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "td-target-6343",
+      "code": "2105",
+      "name": "Target Circle Card ending in 6343",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "citi-aadvantage-3811",
+      "code": "2106",
+      "name": "Citi AAdvantage Mastercard ending in 3811",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "wells-fargo-active-cash-9110",
+      "code": "2107",
+      "name": "Wells Fargo Active Cash ending in 9110",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "chase-freedom-flex-3254",
+      "code": "2108",
+      "name": "Chase Freedom Flex ending in 3254",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "freedom-mortgage",
+      "code": "2200",
+      "name": "Freedom Mortgage",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "irs-payment-plan",
+      "code": "2300",
+      "name": "IRS",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "mazda-financial",
+      "code": "2201",
+      "name": "Mazda Financial",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "service-finance-company",
+      "code": "2202",
+      "name": "Service Finance Company",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "pge-utilities",
+      "code": "2400",
+      "name": "PG&E",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "dovenmuehle",
+      "code": "2203",
+      "name": "Dovenmuehle",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "pentagon-federal",
+      "code": "2204",
+      "name": "Pentagon Federal",
+      "type": "liability",
+      "normalBalance": "credit"
+    },
+    {
+      "id": "netflix",
+      "code": "2401",
+      "name": "Netflix",
+      "type": "liability",
+      "normalBalance": "credit"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "citi-costco-8182",
+      "bank": "Citi",
+      "name": "Costco Anywhere Visa by Citi",
+      "lastFour": "8182",
+      "dueDate": "2026-10-17",
+      "minimumDueCents": 4100,
+      "statementBalanceCents": 180249,
+      "balanceCents": 180249,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open"
+    },
+    {
+      "id": "synchrony-amazon-9883",
+      "bank": "Synchrony Bank",
+      "name": "Amazon Synchrony",
+      "lastFour": "9883",
+      "dueDate": "2026-09-20",
+      "minimumDueCents": 0,
+      "statementBalanceCents": 8912,
+      "balanceCents": 40000,
+      "completedPaymentDate": "2026-09-22",
+      "completedPaymentCents": 8912,
+      "status": "open"
+    },
+    {
+      "id": "synchrony-lowes",
+      "bank": "Synchrony Bank",
+      "name": "Lowe's",
+      "lastFour": null,
+      "dueDate": "2026-10-03",
+      "minimumDueCents": 3920,
+      "statementBalanceCents": 3921,
+      "balanceCents": 0,
+      "completedPaymentDate": "2026-09-22",
+      "completedPaymentCents": 3921,
+      "status": "paid"
+    },
+    {
+      "id": "goldman-gm-rewards",
+      "bank": "Goldman Sachs Bank USA",
+      "name": "GM Rewards Mastercard",
+      "lastFour": null,
+      "dueDate": "2026-10-05",
+      "minimumDueCents": 3000,
+      "statementBalanceCents": 68058,
+      "balanceCents": 68058,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open"
+    },
+    {
+      "id": "td-target-6343",
+      "bank": "TD Bank",
+      "name": "Target Circle Card",
+      "lastFour": "6343",
+      "dueDate": "2026-10-06",
+      "minimumDueCents": 7400,
+      "statementBalanceCents": 392556,
+      "balanceCents": 0,
+      "completedPaymentDate": "2026-09-23",
+      "completedPaymentCents": 392556,
+      "status": "paid"
+    },
+    {
+      "id": "citi-aadvantage-3811",
+      "bank": "Citi",
+      "name": "Citi AAdvantage Platinum Select Mastercard",
+      "lastFour": "3811",
+      "dueDate": "2026-10-06",
+      "minimumDueCents": 0,
+      "statementBalanceCents": 19440,
+      "balanceCents": 19440,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open"
+    },
+    {
+      "id": "citi-aadvantage-3006",
+      "bank": "Citi",
+      "name": "Citi AAdvantage Platinum Select Mastercard",
+      "lastFour": "3006",
+      "dueDate": "2026-10-09",
+      "minimumDueCents": 2900,
+      "statementBalanceCents": 10873,
+      "balanceCents": 0,
+      "completedPaymentDate": "2026-09-16",
+      "completedPaymentCents": 10873,
+      "status": "paid"
+    },
+    {
+      "id": "wells-fargo-active-cash-9110",
+      "bank": "Wells Fargo",
+      "name": "Wells Fargo Active Cash Visa",
+      "lastFour": "9110",
+      "dueDate": "2026-10-18",
+      "minimumDueCents": 15718,
+      "statementBalanceCents": 15718,
+      "balanceCents": 15718,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open"
+    },
+    {
+      "id": "chase-freedom-flex-3254",
+      "bank": "Chase",
+      "name": "Chase Freedom Flex",
+      "lastFour": "3254",
+      "dueDate": "2026-09-21",
+      "minimumDueCents": 3299,
+      "statementBalanceCents": 3299,
+      "balanceCents": 0,
+      "completedPaymentDate": "2026-09-22",
+      "completedPaymentCents": 3299,
+      "status": "paid"
+    },
+    {
+      "id": "freedom-mortgage",
+      "bank": "Freedom Mortgage",
+      "name": "Freedom Mortgage",
+      "lastFour": null,
+      "dueDate": "2026-10-01",
+      "minimumDueCents": 147802,
+      "statementBalanceCents": 147802,
+      "balanceCents": 147802,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 1,
+        "amountCents": 147802
+      }
+    },
+    {
+      "id": "irs-payment-plan",
+      "bank": "IRS",
+      "name": "IRS",
+      "lastFour": null,
+      "dueDate": "2026-10-01",
+      "minimumDueCents": 50000,
+      "statementBalanceCents": 50000,
+      "balanceCents": 50000,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 1,
+        "amountCents": 50000
+      }
+    },
+    {
+      "id": "mazda-financial",
+      "bank": "Mazda Financial Services",
+      "name": "Mazda Financial",
+      "lastFour": null,
+      "dueDate": "2026-10-04",
+      "minimumDueCents": 47522,
+      "statementBalanceCents": 47522,
+      "balanceCents": 47522,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 4,
+        "amountCents": 47522
+      }
+    },
+    {
+      "id": "service-finance-company",
+      "bank": "Service Finance Company",
+      "name": "Service Finance Company",
+      "lastFour": null,
+      "dueDate": "2026-10-01",
+      "minimumDueCents": 25643,
+      "statementBalanceCents": 25643,
+      "balanceCents": 25643,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 1,
+        "amountCents": 25643
+      }
+    },
+    {
+      "id": "pge-utilities",
+      "bank": "PG&E",
+      "name": "PG&E",
+      "lastFour": null,
+      "dueDate": "2026-10-13",
+      "minimumDueCents": 49400,
+      "statementBalanceCents": 49400,
+      "balanceCents": 49400,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 11,
+        "amountCents": 41500
+      }
+    },
+    {
+      "id": "dovenmuehle",
+      "bank": "Dovenmuehle Mortgage",
+      "name": "Dovenmuehle",
+      "lastFour": null,
+      "dueDate": "2026-10-14",
+      "minimumDueCents": 37612,
+      "statementBalanceCents": 37612,
+      "balanceCents": 37612,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 14,
+        "amountCents": 37612
+      }
+    },
+    {
+      "id": "pentagon-federal",
+      "bank": "Pentagon Federal Credit Union",
+      "name": "Pentagon Federal",
+      "lastFour": null,
+      "dueDate": "2026-10-16",
+      "minimumDueCents": 53043,
+      "statementBalanceCents": 53043,
+      "balanceCents": 53043,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 16,
+        "amountCents": 53043
+      }
+    },
+    {
+      "id": "netflix",
+      "bank": "Netflix",
+      "name": "Netflix",
+      "lastFour": null,
+      "dueDate": "2026-10-17",
+      "minimumDueCents": 2699,
+      "statementBalanceCents": 2699,
+      "balanceCents": 2699,
+      "completedPaymentDate": null,
+      "completedPaymentCents": 0,
+      "status": "open",
+      "recurrence": {
+        "frequency": "monthly",
+        "dayOfMonth": 17,
+        "amountCents": 2699
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "id": "payment-citi-3006-2026-09-16",
+      "date": "2026-09-16",
+      "accountId": "citi-aadvantage-3006",
+      "type": "payment",
+      "amountCents": 10873,
+      "description": "Statement payment",
+      "balanceAfterCents": 0
+    },
+    {
+      "id": "payment-lowes-2026-09-22",
+      "date": "2026-09-22",
+      "accountId": "synchrony-lowes",
+      "type": "payment",
+      "amountCents": 3921,
+      "description": "Statement payment",
+      "balanceAfterCents": 0
+    },
+    {
+      "id": "payment-amazon-9883-2026-09-22",
+      "date": "2026-09-22",
+      "accountId": "synchrony-amazon-9883",
+      "type": "payment",
+      "amountCents": 8912,
+      "description": "Partial payment (statement balance)",
+      "balanceAfterCents": 40000
+    },
+    {
+      "id": "payment-chase-flex-3254-2026-09-22",
+      "date": "2026-09-22",
+      "accountId": "chase-freedom-flex-3254",
+      "type": "payment",
+      "amountCents": 3299,
+      "description": "Statement payment",
+      "balanceAfterCents": 0
+    },
+    {
+      "id": "payment-target-6343-2026-09-23",
+      "date": "2026-09-23",
+      "accountId": "td-target-6343",
+      "type": "payment",
+      "amountCents": 392556,
+      "description": "Statement payment",
+      "balanceAfterCents": 0
+    }
+  ],
+  "journalEntries": [
+    {
+      "id": "je-2026-09-16-citi-3006-payment",
+      "number": "JE-0001",
+      "date": "2026-09-16",
+      "posted": true,
+      "description": "Payment to Citi AAdvantage Mastercard ending in 3006",
+      "sourceTransactionId": "payment-citi-3006-2026-09-16",
+      "lines": [
+        {
+          "accountId": "citi-aadvantage-3006",
+          "debitCents": 10873,
+          "creditCents": 0
+        },
+        {
+          "accountId": "cash-checking",
+          "debitCents": 0,
+          "creditCents": 10873
+        }
+      ]
+    },
+    {
+      "id": "je-2026-09-22-lowes-payment",
+      "number": "JE-0002",
+      "date": "2026-09-22",
+      "posted": true,
+      "description": "Payment to Lowe's account",
+      "sourceTransactionId": "payment-lowes-2026-09-22",
+      "lines": [
+        {
+          "accountId": "synchrony-lowes",
+          "debitCents": 3921,
+          "creditCents": 0
+        },
+        {
+          "accountId": "cash-checking",
+          "debitCents": 0,
+          "creditCents": 3921
+        }
+      ]
+    },
+    {
+      "id": "je-2026-09-22-amazon-9883-payment",
+      "number": "JE-0003",
+      "date": "2026-09-22",
+      "posted": true,
+      "description": "Payment to Amazon Synchrony ending in 9883",
+      "sourceTransactionId": "payment-amazon-9883-2026-09-22",
+      "lines": [
+        {
+          "accountId": "synchrony-amazon-9883",
+          "debitCents": 8912,
+          "creditCents": 0
+        },
+        {
+          "accountId": "cash-checking",
+          "debitCents": 0,
+          "creditCents": 8912
+        }
+      ]
+    },
+    {
+      "id": "je-2026-09-22-chase-flex-3254-payment",
+      "number": "JE-0004",
+      "date": "2026-09-22",
+      "posted": true,
+      "description": "Payment to Chase Freedom Flex ending in 3254",
+      "sourceTransactionId": "payment-chase-flex-3254-2026-09-22",
+      "lines": [
+        {
+          "accountId": "chase-freedom-flex-3254",
+          "debitCents": 3299,
+          "creditCents": 0
+        },
+        {
+          "accountId": "cash-checking",
+          "debitCents": 0,
+          "creditCents": 3299
+        }
+      ]
+    },
+    {
+      "id": "je-2026-09-23-target-6343-payment",
+      "number": "JE-0005",
+      "date": "2026-09-23",
+      "posted": true,
+      "description": "Payment to Target Circle Card ending in 6343",
+      "sourceTransactionId": "payment-target-6343-2026-09-23",
+      "lines": [
+        {
+          "accountId": "td-target-6343",
+          "debitCents": 392556,
+          "creditCents": 0
+        },
+        {
+          "accountId": "cash-checking",
+          "debitCents": 0,
+          "creditCents": 392556
+        }
+      ]
+    }
+  ]
+}
