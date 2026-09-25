@@ -12,7 +12,8 @@ Read this first in a new session. It covers what isn't obvious from the database
 ## 2. The project
 
 - **Owner:** Lester Carcamo. Personal household books, double-entry, **accrual basis**, US / California.
-- **Database:** `numbers/sqlite/Lester_Carcamo_Accounting.db` (SQLite 3.31.1; no `DROP COLUMN`).
+- **Database:** `numbers/sqlite/Lester_Carcamo_Accounting.db`. **SQLite 3.50.4** (validated 2026-09-25); `DROP COLUMN` and window functions work. An older note said 3.31.1, which was wrong.
+- **Database access:** use the **custom-sqlite MCP** (configured in `d:\wdd130\.mcp.json`, server code `C:\mcp\custom_sqlite.py`). `mcp__custom-sqlite__quick_query` for reads (read-only connection); `mcp__custom-sqlite__execute_write` for approved changes (one statement, `?` placeholders, foreign keys on, rollback on error). The tools are deferred: load them with ToolSearch `select:mcp__custom-sqlite__quick_query,mcp__custom-sqlite__execute_write,mcp__custom-sqlite__list_tables,mcp__custom-sqlite__describe_table`. In the 2026-09-25 session, all reads and writes were done with ad hoc Python instead, by mistake; the data was verified and is consistent.
 - **Lester is learning accounting and database design.** Explain the reasoning in plain language, and correct misunderstandings politely. He likes short answers with tables.
 - **Agent:** `.claude/agents/senior-ledger.md` is an accounting specialist subagent. Parts of its prompt are out of date: it describes the code format as `L213006` and `accounts.json` as the source of truth. The database now uses `L01-21-3006` and is the primary system.
 
@@ -48,6 +49,7 @@ Read this first in a new session. It covers what isn't obvious from the database
 - **Tax questions:** give the accounting treatment plus a short "confirm with a CPA" note.
 - **Privacy:** `numbers/` is tracked in git (remote `github.com/Porebo/wdd130`, possibly published via GitHub Pages). The database, statements and these notes are committed files. Store only the last 4 digits of account numbers and VINs, never full numbers. Remind Lester before sensitive data would be committed.
 - **Helper scripts** go in `scripts/`, never the project root.
+- **Prefer PowerShell scripts over Python.** Lester's work computer blocks pip at the firewall, so nothing may depend on `pip install`. PowerShell can't read SQLite by itself, and no `sqlite3` CLI is on PATH. There is, however, an **ArcGIS Pro copy of `sqlite3.exe` (3.49.1)** at `C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\Library\bin\sqlite3.exe` that PowerShell scripts could call with no download (it depends on ArcGIS staying installed). Otherwise, standard-library-only Python (`sqlite3` module) is the accepted fallback for database scripts.
 
 ## 6. Decisions made (not visible in the database)
 
@@ -94,6 +96,17 @@ Read this first in a new session. It covers what isn't obvious from the database
 - LDS Church donations → `E11-58-XXXX`.
 - Rocket Money, a cancelled subscription → `E03-57-XXXX`.
 - Cash withdrawals → `A07-00-0001` Cash on hand.
+
+**Rideshare taxes**
+- Lester files rideshare on Schedule C using the **actual expense method, not the standard mileage rate**, for the 2023 GMC Acadia (100% Uber).
+- All rideshare costs belong in E06 Rideshare costs; income is recorded gross.
+- The proposed accounts, including the Acadia as an A06 asset with accumulated depreciation, are in section 3a of `accounts_needed_from_bofa_checking.md` and aren't created yet.
+
+**Reports and design ideas**
+- Existing generated pages in `numbers/sqlite/`:
+  - `chart_of_accounts.html` (rebuild with `python scripts/build_chart_of_accounts.py`)
+  - `logical_diag.html` and `physical_diag.html` (hand-built SVG diagrams; update them if the schema changes)
+- Proposed next steps are in section 5 of `accounts_needed_from_bofa_checking.md`: a ledger page on top of `general_ledger_view` (the view was CREATED 2026-09-25; filter it with WHERE on account_code, subclass_name, class_name or entry_date; one view for all accounts, never one per account), trial balance and statements, reconciliation controls, and tax line mapping.
 
 **Deferred on purpose**
 - The home and the vehicles as assets (A06 is empty). Lester said this isn't part of the BofA task.

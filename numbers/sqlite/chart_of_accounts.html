@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chart of Accounts</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --ink: #1d2433; --muted: #5d6679; --line: #dde2ea; --row: #f3f5f9;
+    --asset: #2f6f4f; --liability: #b04a3a; --capital: #6b46c1; --revenue: #1f6fb2; --expense: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161f; --surface: #1b2130; --ink: #e6e9ef; --muted: #9aa3b5; --line: #313a50; --row: #20283a;
+      --asset: #4fae7f; --liability: #e27966; --capital: #a58af0; --revenue: #5aa7e8; --expense: #e3a846;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161f; --surface: #1b2130; --ink: #e6e9ef; --muted: #9aa3b5; --line: #313a50; --row: #20283a;
+    --asset: #4fae7f; --liability: #e27966; --capital: #a58af0; --revenue: #5aa7e8; --expense: #e3a846;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 56px; }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 18px; }
+  code { font: 13px ui-monospace, Consolas, monospace; }
+  .toolbar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 10px 0 12px;
+             display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--line); }
+  .toolbar input { flex: 1 1 220px; min-width: 0; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px;
+                   background: var(--surface); color: var(--ink); font: inherit; }
+  .chip { text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+          border-left: 4px solid var(--c); border-radius: 8px; padding: 5px 10px; font-size: 13px; white-space: nowrap; }
+  .chip .n { color: var(--muted); margin-left: 2px; }
+  .asset { --c: var(--asset); } .liability { --c: var(--liability); } .capital { --c: var(--capital); }
+  .revenue { --c: var(--revenue); } .expense { --c: var(--expense); }
+  section.class { margin-top: 28px; }
+  .class-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 14px;
+                background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--c); border-radius: 10px; }
+  .class-head h2 { margin: 0; font-size: 1.25rem; }
+  .letter { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 8px;
+            background: var(--c); color: #fff; font-weight: 700; }
+  .meta { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .subclass { margin: 14px 0 0 12px; }
+  .subclass h3 { font-size: 1rem; margin: 0 0 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .scode { font: 600 13px ui-monospace, Consolas, monospace; color: var(--c); border: 1px solid var(--c);
+           border-radius: 5px; padding: 0 6px; }
+  .term { font-size: 12px; font-weight: 500; color: var(--muted); background: var(--row); border-radius: 999px; padding: 1px 8px; }
+  .count { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .count::before { content: "· "; }
+  .empty { color: var(--muted); font-style: italic; margin: 0 0 4px; font-size: 14px; }
+  .tw { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--row); }
+  tbody tr:last-child td { border-bottom: 0; }
+  .c-code { white-space: nowrap; width: 9.5rem; }
+  .c-inst { width: 26%; }
+  .c-key { width: 28%; overflow-wrap: anywhere; }
+  .c-key code { color: var(--muted); font-size: 12px; }
+  .official { color: var(--muted); font-size: 12.5px; }
+  .hidden { display: none; }
+  @media (max-width: 640px) { .c-key { display: none; } .meta { margin-left: 0; } .subclass { margin-left: 0; } }
+  footer { color: var(--muted); font-size: 13px; margin-top: 36px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Chart of Accounts</h1>
+  <p class="sub">Lester Carcamo household books · 88 accounts in 29 subclasses across 5 classes.
+  Code = class initial + subclass number - institution number - last four digits.</p>
+
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Search code, name, institution or key" aria-label="Search accounts">
+    <a class="chip asset" href="#class-A"><b>A</b> Assets <span class="n">12</span></a>
+<a class="chip liability" href="#class-L"><b>L</b> Liabilities <span class="n">33</span></a>
+<a class="chip capital" href="#class-C"><b>C</b> Capital <span class="n">1</span></a>
+<a class="chip revenue" href="#class-R"><b>R</b> Revenue <span class="n">9</span></a>
+<a class="chip expense" href="#class-E"><b>E</b> Expenses <span class="n">33</span></a>
+  </div>
+
+  <section class="class asset" id="class-A">
+<header class="class-head"><span class="letter">A</span><h2>Assets</h2><span class="meta">Normal balance: <b>debit</b> · 8 subclasses · 12 accounts</span></header>
+<div class="subclass">
+<h3><span class="scode">A01</span> Checking <span class="term">current</span><span class="count">6</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a01-35-7632 bank of america checking adv plus banking bank of america cash-checking"><td class="c-code"><code>A01-35-7632</code></td><td>Bank of America checking<div class="official">Adv Plus Banking</div></td><td class="c-inst">Bank of America</td><td class="c-key"><code>cash-checking</code></td></tr>
+<tr data-search="a01-26-5236 chase checking chase chase-checking-5236"><td class="c-code"><code>A01-26-5236</code></td><td>Chase checking</td><td class="c-inst">Chase</td><td class="c-key"><code>chase-checking-5236</code></td></tr>
+<tr data-search="a01-25-0009 wells fargo checking wells fargo wells-fargo-checking-0009"><td class="c-code"><code>A01-25-0009</code></td><td>Wells Fargo checking</td><td class="c-inst">Wells Fargo</td><td class="c-key"><code>wells-fargo-checking-0009</code></td></tr>
+<tr data-search="a01-40-5571 capital one 360 checking capital one capitalone-checking-5571"><td class="c-code"><code>A01-40-5571</code></td><td>Capital One 360 Checking</td><td class="c-inst">Capital One</td><td class="c-key"><code>capitalone-checking-5571</code></td></tr>
+<tr data-search="a01-54-1245 branch checking branch messenger branch-checking-1245"><td class="c-code"><code>A01-54-1245</code></td><td>Branch checking</td><td class="c-inst">Branch Messenger</td><td class="c-key"><code>branch-checking-1245</code></td></tr>
+<tr data-search="a01-56-8873 lyft direct checking payfare payfare-lyft-direct-8873"><td class="c-code"><code>A01-56-8873</code></td><td>Lyft Direct checking</td><td class="c-inst">Payfare</td><td class="c-key"><code>payfare-lyft-direct-8873</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">A02</span> Savings <span class="term">current</span><span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a02-35-3435 bank of america regular savings regular savings bank of america boaf-savings-3435"><td class="c-code"><code>A02-35-3435</code></td><td>Bank of America regular savings<div class="official">Regular Savings</div></td><td class="c-inst">Bank of America</td><td class="c-key"><code>boaf-savings-3435</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">A03</span> Escrow <span class="term">current</span><span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a03-27-xxxx freedom mortgage escrow freedom mortgage freedom-mortgage-escrow"><td class="c-code"><code>A03-27-XXXX</code></td><td>Freedom Mortgage escrow</td><td class="c-inst">Freedom Mortgage</td><td class="c-key"><code>freedom-mortgage-escrow</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">A04</span> Retirement accounts <span class="term">long-term</span><span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a04-39-xxxx fidelity 401k fidelity fidelity-401k"><td class="c-code"><code>A04-39-XXXX</code></td><td>Fidelity 401k</td><td class="c-inst">Fidelity</td><td class="c-key"><code>fidelity-401k</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">A05</span> Stock investments <span class="term">long-term</span><span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a05-36-0001 crc employee stock purchase plan crc services, llc crc-espp"><td class="c-code"><code>A05-36-0001</code></td><td>CRC employee stock purchase plan</td><td class="c-inst">CRC Services, LLC</td><td class="c-key"><code>crc-espp</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">A06</span> Property and vehicles <span class="term">long-term</span><span class="count">0</span></h3>
+<p class="empty">No accounts yet.</p></div>
+<div class="subclass">
+<h3><span class="scode">A07</span> Cash on hand <span class="term">current</span><span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a07-00-0001 cash on hand internal cash-on-hand"><td class="c-code"><code>A07-00-0001</code></td><td>Cash on hand</td><td class="c-inst">Internal</td><td class="c-key"><code>cash-on-hand</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">A08</span> Loans receivable <span class="term">long-term</span><span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="a08-41-xxxx loan receivable perla escobar perla escobar perla-loan-receivable"><td class="c-code"><code>A08-41-XXXX</code></td><td>Loan receivable Perla Escobar</td><td class="c-inst">Perla Escobar</td><td class="c-key"><code>perla-loan-receivable</code></td></tr>
+</tbody></table></div></div>
+</section>
+<section class="class liability" id="class-L">
+<header class="class-head"><span class="letter">L</span><h2>Liabilities</h2><span class="meta">Normal balance: <b>credit</b> · 5 subclasses · 33 accounts</span></header>
+<div class="subclass">
+<h3><span class="scode">L01</span> Credit cards <span class="term">current</span><span class="count">23</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="l01-21-3006 citi aadvantage mastercard citi aadvantage platinum select mastercard citi citi-aadvantage-3006"><td class="c-code"><code>L01-21-3006</code></td><td>Citi AAdvantage Mastercard<div class="official">Citi AAdvantage Platinum Select Mastercard</div></td><td class="c-inst">Citi</td><td class="c-key"><code>citi-aadvantage-3006</code></td></tr>
+<tr data-search="l01-21-3811 citi aadvantage mastercard citi aadvantage platinum select mastercard citi citi-aadvantage-3811"><td class="c-code"><code>L01-21-3811</code></td><td>Citi AAdvantage Mastercard<div class="official">Citi AAdvantage Platinum Select Mastercard</div></td><td class="c-inst">Citi</td><td class="c-key"><code>citi-aadvantage-3811</code></td></tr>
+<tr data-search="l01-21-8182 costco anywhere visa costco anywhere visa by citi citi citi-costco-8182"><td class="c-code"><code>L01-21-8182</code></td><td>Costco Anywhere Visa<div class="official">Costco Anywhere Visa by Citi</div></td><td class="c-inst">Citi</td><td class="c-key"><code>citi-costco-8182</code></td></tr>
+<tr data-search="l01-22-9883 amazon synchrony synchrony bank synchrony-amazon-9883"><td class="c-code"><code>L01-22-9883</code></td><td>Amazon Synchrony</td><td class="c-inst">Synchrony Bank</td><td class="c-key"><code>synchrony-amazon-9883</code></td></tr>
+<tr data-search="l01-22-4493 lowes account synchrony bank synchrony-lowes-4493"><td class="c-code"><code>L01-22-4493</code></td><td>Lowes account</td><td class="c-inst">Synchrony Bank</td><td class="c-key"><code>synchrony-lowes-4493</code></td></tr>
+<tr data-search="l01-42-2946 gm rewards mastercard barclays barclays-gm-rewards-2946"><td class="c-code"><code>L01-42-2946</code></td><td>GM Rewards Mastercard</td><td class="c-inst">Barclays</td><td class="c-key"><code>barclays-gm-rewards-2946</code></td></tr>
+<tr data-search="l01-24-6343 target circle card td bank td-target-6343"><td class="c-code"><code>L01-24-6343</code></td><td>Target Circle Card</td><td class="c-inst">TD Bank</td><td class="c-key"><code>td-target-6343</code></td></tr>
+<tr data-search="l01-25-9110 wells fargo active cash wells fargo active cash visa wells fargo wells-fargo-active-cash-9110"><td class="c-code"><code>L01-25-9110</code></td><td>Wells Fargo Active Cash<div class="official">Wells Fargo Active Cash Visa</div></td><td class="c-inst">Wells Fargo</td><td class="c-key"><code>wells-fargo-active-cash-9110</code></td></tr>
+<tr data-search="l01-26-3254 chase freedom flex chase chase-freedom-flex-3254"><td class="c-code"><code>L01-26-3254</code></td><td>Chase Freedom Flex</td><td class="c-inst">Chase</td><td class="c-key"><code>chase-freedom-flex-3254</code></td></tr>
+<tr data-search="l01-23-6508 apple card goldman sachs bank usa goldman-apple-card-6508"><td class="c-code"><code>L01-23-6508</code></td><td>Apple Card</td><td class="c-inst">Goldman Sachs Bank USA</td><td class="c-key"><code>goldman-apple-card-6508</code></td></tr>
+<tr data-search="l01-42-0741 barclaycard rewards barclays barclays-rewards-0741"><td class="c-code"><code>L01-42-0741</code></td><td>Barclaycard Rewards</td><td class="c-inst">Barclays</td><td class="c-key"><code>barclays-rewards-0741</code></td></tr>
+<tr data-search="l01-42-3807 barclays view mastercard barclays barclays-view-3807"><td class="c-code"><code>L01-42-3807</code></td><td>Barclays View Mastercard</td><td class="c-inst">Barclays</td><td class="c-key"><code>barclays-view-3807</code></td></tr>
+<tr data-search="l01-43-7971 robinhood gold card robinhood robinhood-gold-card-7971"><td class="c-code"><code>L01-43-7971</code></td><td>Robinhood Gold Card</td><td class="c-inst">Robinhood</td><td class="c-key"><code>robinhood-gold-card-7971</code></td></tr>
+<tr data-search="l01-44-8032 discover card discover discover-card-8032"><td class="c-code"><code>L01-44-8032</code></td><td>Discover Card</td><td class="c-inst">Discover</td><td class="c-key"><code>discover-card-8032</code></td></tr>
+<tr data-search="l01-45-1005 amex everyday card american express amex-everyday-1005"><td class="c-code"><code>L01-45-1005</code></td><td>Amex EveryDay Card</td><td class="c-inst">American Express</td><td class="c-key"><code>amex-everyday-1005</code></td></tr>
+<tr data-search="l01-45-1008 delta skymiles blue card american express amex-delta-skymiles-blue-1008"><td class="c-code"><code>L01-45-1008</code></td><td>Delta SkyMiles Blue Card</td><td class="c-inst">American Express</td><td class="c-key"><code>amex-delta-skymiles-blue-1008</code></td></tr>
+<tr data-search="l01-35-2391 bankamericard platinum plus bankamericard platinum plus mastercard bank of america boaf-credit-card-2391"><td class="c-code"><code>L01-35-2391</code></td><td>BankAmericard Platinum Plus<div class="official">BankAmericard Platinum Plus Mastercard</div></td><td class="c-inst">Bank of America</td><td class="c-key"><code>boaf-credit-card-2391</code></td></tr>
+<tr data-search="l01-35-9329 bofa travel rewards visa travel rewards visa signature bank of america boaf-credit-card-9329"><td class="c-code"><code>L01-35-9329</code></td><td>BofA Travel Rewards Visa<div class="official">Travel Rewards Visa Signature</div></td><td class="c-inst">Bank of America</td><td class="c-key"><code>boaf-credit-card-9329</code></td></tr>
+<tr data-search="l01-40-7876 kohls card capital one capitalone-kohls-7876"><td class="c-code"><code>L01-40-7876</code></td><td>Kohls Card</td><td class="c-inst">Capital One</td><td class="c-key"><code>capitalone-kohls-7876</code></td></tr>
+<tr data-search="l01-40-3065 quicksilver capital one capitalone-quicksilver-3065"><td class="c-code"><code>L01-40-3065</code></td><td>Quicksilver</td><td class="c-inst">Capital One</td><td class="c-key"><code>capitalone-quicksilver-3065</code></td></tr>
+<tr data-search="l01-40-4380 capital one card, cancelled capital one capitalone-cancelled-card-4380"><td class="c-code"><code>L01-40-4380</code></td><td>Capital One card, cancelled</td><td class="c-inst">Capital One</td><td class="c-key"><code>capitalone-cancelled-card-4380</code></td></tr>
+<tr data-search="l01-22-1800 onepay cashrewards synchrony bank synchrony-onepay-1800"><td class="c-code"><code>L01-22-1800</code></td><td>OnePay CashRewards</td><td class="c-inst">Synchrony Bank</td><td class="c-key"><code>synchrony-onepay-1800</code></td></tr>
+<tr data-search="l01-46-8820 ford credit card ford credit card signature first national bank of omaha fnbo-ford-8820"><td class="c-code"><code>L01-46-8820</code></td><td>Ford Credit Card<div class="official">Ford Credit Card Signature</div></td><td class="c-inst">First National Bank of Omaha</td><td class="c-key"><code>fnbo-ford-8820</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">L02</span> Bills payable <span class="term">current</span><span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="l02-33-xxxx pgande pgande pge-utilities"><td class="c-code"><code>L02-33-XXXX</code></td><td>PGandE</td><td class="c-inst">PGandE</td><td class="c-key"><code>pge-utilities</code></td></tr>
+<tr data-search="l02-34-xxxx netflix netflix netflix"><td class="c-code"><code>L02-34-XXXX</code></td><td>Netflix</td><td class="c-inst">Netflix</td><td class="c-key"><code>netflix</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">L03</span> Mortgages <span class="term">long-term</span><span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="l03-27-xxxx freedom mortgage freedom mortgage freedom-mortgage"><td class="c-code"><code>L03-27-XXXX</code></td><td>Freedom Mortgage</td><td class="c-inst">Freedom Mortgage</td><td class="c-key"><code>freedom-mortgage</code></td></tr>
+<tr data-search="l03-30-xxxx dovenmuehle second mortgage dovenmuehle mortgage dovenmuehle"><td class="c-code"><code>L03-30-XXXX</code></td><td>Dovenmuehle second mortgage</td><td class="c-inst">Dovenmuehle Mortgage</td><td class="c-key"><code>dovenmuehle</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">L04</span> Loans <span class="term">long-term</span><span class="count">4</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="l04-28-xxxx mazda financial mazda financial services mazda-financial"><td class="c-code"><code>L04-28-XXXX</code></td><td>Mazda Financial</td><td class="c-inst">Mazda Financial Services</td><td class="c-key"><code>mazda-financial</code></td></tr>
+<tr data-search="l04-29-xxxx service finance company service finance company service-finance-company"><td class="c-code"><code>L04-29-XXXX</code></td><td>Service Finance Company</td><td class="c-inst">Service Finance Company</td><td class="c-key"><code>service-finance-company</code></td></tr>
+<tr data-search="l04-31-xxxx pentagon federal pentagon federal credit union pentagon-federal"><td class="c-code"><code>L04-31-XXXX</code></td><td>Pentagon Federal</td><td class="c-inst">Pentagon Federal Credit Union</td><td class="c-key"><code>pentagon-federal</code></td></tr>
+<tr data-search="l04-48-0425 gm financial loan buick encore gx gm financial gm-financial-buick-encore-gx-0425"><td class="c-code"><code>L04-48-0425</code></td><td>GM Financial loan Buick Encore GX</td><td class="c-inst">GM Financial</td><td class="c-key"><code>gm-financial-buick-encore-gx-0425</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">L05</span> Taxes payable <span class="term">long-term</span><span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="l05-32-xxxx irs irs irs-payment-plan"><td class="c-code"><code>L05-32-XXXX</code></td><td>IRS</td><td class="c-inst">IRS</td><td class="c-key"><code>irs-payment-plan</code></td></tr>
+<tr data-search="l05-50-0562 california taxes payable franchise tax board ftb-taxes-payable-0562"><td class="c-code"><code>L05-50-0562</code></td><td>California taxes payable</td><td class="c-inst">Franchise Tax Board</td><td class="c-key"><code>ftb-taxes-payable-0562</code></td></tr>
+</tbody></table></div></div>
+</section>
+<section class="class capital" id="class-C">
+<header class="class-head"><span class="letter">C</span><h2>Capital</h2><span class="meta">Normal balance: <b>credit</b> · 2 subclasses · 1 accounts</span></header>
+<div class="subclass">
+<h3><span class="scode">C01</span> Owner capital <span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="c01-00-0001 lester carcamo, capital internal lester-carcamo-capital"><td class="c-code"><code>C01-00-0001</code></td><td>Lester Carcamo, Capital</td><td class="c-inst">Internal</td><td class="c-key"><code>lester-carcamo-capital</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">C02</span> Owner drawing <span class="count">0</span></h3>
+<p class="empty">No accounts yet.</p></div>
+</section>
+<section class="class revenue" id="class-R">
+<header class="class-head"><span class="letter">R</span><h2>Revenue</h2><span class="meta">Normal balance: <b>credit</b> · 2 subclasses · 9 accounts</span></header>
+<div class="subclass">
+<h3><span class="scode">R01</span> Earned income <span class="count">7</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="r01-36-7377 crc wages crc services, llc crc-wages"><td class="c-code"><code>R01-36-7377</code></td><td>CRC wages</td><td class="c-inst">CRC Services, LLC</td><td class="c-key"><code>crc-wages</code></td></tr>
+<tr data-search="r01-36-0001 crc employer 401k contributions crc services, llc crc-employer-401k"><td class="c-code"><code>R01-36-0001</code></td><td>CRC employer 401k contributions</td><td class="c-inst">CRC Services, LLC</td><td class="c-key"><code>crc-employer-401k</code></td></tr>
+<tr data-search="r01-36-0002 crc annual bonus crc services, llc crc-annual-bonus"><td class="c-code"><code>R01-36-0002</code></td><td>CRC annual bonus</td><td class="c-inst">CRC Services, LLC</td><td class="c-key"><code>crc-annual-bonus</code></td></tr>
+<tr data-search="r01-36-0003 crc education reimbursement crc services, llc crc-education-reimbursement"><td class="c-code"><code>R01-36-0003</code></td><td>CRC education reimbursement</td><td class="c-inst">CRC Services, LLC</td><td class="c-key"><code>crc-education-reimbursement</code></td></tr>
+<tr data-search="r01-37-xxxx uber rideshare income uber uber-rideshare-income"><td class="c-code"><code>R01-37-XXXX</code></td><td>Uber rideshare income</td><td class="c-inst">Uber</td><td class="c-key"><code>uber-rideshare-income</code></td></tr>
+<tr data-search="r01-38-xxxx lyft rideshare income lyft lyft-rideshare-income"><td class="c-code"><code>R01-38-XXXX</code></td><td>Lyft rideshare income</td><td class="c-inst">Lyft</td><td class="c-key"><code>lyft-rideshare-income</code></td></tr>
+<tr data-search="r01-53-xxxx curri delivery income curri curri-delivery-income"><td class="c-code"><code>R01-53-XXXX</code></td><td>Curri delivery income</td><td class="c-inst">Curri</td><td class="c-key"><code>curri-delivery-income</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">R02</span> Other income <span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="r02-35-3435 savings acct int bank of america savings interest income bank of america boaf-savings-interest-3435"><td class="c-code"><code>R02-35-3435</code></td><td>Savings Acct Int<div class="official">Bank of America savings interest income</div></td><td class="c-inst">Bank of America</td><td class="c-key"><code>boaf-savings-interest-3435</code></td></tr>
+<tr data-search="r02-55-0562 personal injury settlement marcos rodriguez rodriguez-injury-settlement-0562"><td class="c-code"><code>R02-55-0562</code></td><td>Personal injury settlement</td><td class="c-inst">Marcos Rodriguez</td><td class="c-key"><code>rodriguez-injury-settlement-0562</code></td></tr>
+</tbody></table></div></div>
+</section>
+<section class="class expense" id="class-E">
+<header class="class-head"><span class="letter">E</span><h2>Expenses</h2><span class="meta">Normal balance: <b>debit</b> · 12 subclasses · 33 accounts</span></header>
+<div class="subclass">
+<h3><span class="scode">E01</span> Housing <span class="count">3</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e01-00-0001 property taxes internal property-taxes"><td class="c-code"><code>E01-00-0001</code></td><td>Property taxes</td><td class="c-inst">Internal</td><td class="c-key"><code>property-taxes</code></td></tr>
+<tr data-search="e01-00-0002 hazard insurance internal hazard-insurance"><td class="c-code"><code>E01-00-0002</code></td><td>Hazard insurance</td><td class="c-inst">Internal</td><td class="c-key"><code>hazard-insurance</code></td></tr>
+<tr data-search="e01-00-0003 home repairs and maintenance internal home-repairs-maintenance"><td class="c-code"><code>E01-00-0003</code></td><td>Home repairs and maintenance</td><td class="c-inst">Internal</td><td class="c-key"><code>home-repairs-maintenance</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E02</span> Utilities <span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e02-33-xxxx pgande pgande pge-utilities-expense"><td class="c-code"><code>E02-33-XXXX</code></td><td>PGandE</td><td class="c-inst">PGandE</td><td class="c-key"><code>pge-utilities-expense</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E03</span> Subscriptions <span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e03-34-xxxx netflix netflix netflix-expense"><td class="c-code"><code>E03-34-XXXX</code></td><td>Netflix</td><td class="c-inst">Netflix</td><td class="c-key"><code>netflix-expense</code></td></tr>
+<tr data-search="e03-57-xxxx rocket money rocket money rocket-money-expense"><td class="c-code"><code>E03-57-XXXX</code></td><td>Rocket Money</td><td class="c-inst">Rocket Money</td><td class="c-key"><code>rocket-money-expense</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E04</span> Interest <span class="count">6</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e04-27-xxxx freedom mortgage interest freedom mortgage freedom-mortgage-interest"><td class="c-code"><code>E04-27-XXXX</code></td><td>Freedom Mortgage interest</td><td class="c-inst">Freedom Mortgage</td><td class="c-key"><code>freedom-mortgage-interest</code></td></tr>
+<tr data-search="e04-28-xxxx mazda financial interest mazda financial services mazda-financial-interest"><td class="c-code"><code>E04-28-XXXX</code></td><td>Mazda Financial interest</td><td class="c-inst">Mazda Financial Services</td><td class="c-key"><code>mazda-financial-interest</code></td></tr>
+<tr data-search="e04-29-xxxx service finance company interest service finance company service-finance-company-interest"><td class="c-code"><code>E04-29-XXXX</code></td><td>Service Finance Company interest</td><td class="c-inst">Service Finance Company</td><td class="c-key"><code>service-finance-company-interest</code></td></tr>
+<tr data-search="e04-30-xxxx dovenmuehle interest dovenmuehle mortgage dovenmuehle-interest"><td class="c-code"><code>E04-30-XXXX</code></td><td>Dovenmuehle interest</td><td class="c-inst">Dovenmuehle Mortgage</td><td class="c-key"><code>dovenmuehle-interest</code></td></tr>
+<tr data-search="e04-31-xxxx pentagon federal interest pentagon federal credit union pentagon-federal-interest"><td class="c-code"><code>E04-31-XXXX</code></td><td>Pentagon Federal interest</td><td class="c-inst">Pentagon Federal Credit Union</td><td class="c-key"><code>pentagon-federal-interest</code></td></tr>
+<tr data-search="e04-32-0001 irs interest and penalties irs irs-interest-and-penalties"><td class="c-code"><code>E04-32-0001</code></td><td>IRS interest and penalties</td><td class="c-inst">IRS</td><td class="c-key"><code>irs-interest-and-penalties</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E05</span> Taxes <span class="count">5</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e05-32-0001 federal income tax irs federal-income-tax"><td class="c-code"><code>E05-32-0001</code></td><td>Federal income tax</td><td class="c-inst">IRS</td><td class="c-key"><code>federal-income-tax</code></td></tr>
+<tr data-search="e05-32-0002 social security tax irs social-security-tax"><td class="c-code"><code>E05-32-0002</code></td><td>Social Security tax</td><td class="c-inst">IRS</td><td class="c-key"><code>social-security-tax</code></td></tr>
+<tr data-search="e05-32-0003 medicare tax irs medicare-tax"><td class="c-code"><code>E05-32-0003</code></td><td>Medicare tax</td><td class="c-inst">IRS</td><td class="c-key"><code>medicare-tax</code></td></tr>
+<tr data-search="e05-00-0001 california income tax internal california-income-tax"><td class="c-code"><code>E05-00-0001</code></td><td>California income tax</td><td class="c-inst">Internal</td><td class="c-key"><code>california-income-tax</code></td></tr>
+<tr data-search="e05-00-0002 california sdi internal california-sdi"><td class="c-code"><code>E05-00-0002</code></td><td>California SDI</td><td class="c-inst">Internal</td><td class="c-key"><code>california-sdi</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E06</span> Rideshare costs <span class="count">3</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e06-37-xxxx uber service fees uber uber-service-fees"><td class="c-code"><code>E06-37-XXXX</code></td><td>Uber service fees</td><td class="c-inst">Uber</td><td class="c-key"><code>uber-service-fees</code></td></tr>
+<tr data-search="e06-38-xxxx lyft service fees lyft lyft-service-fees"><td class="c-code"><code>E06-38-XXXX</code></td><td>Lyft service fees</td><td class="c-inst">Lyft</td><td class="c-key"><code>lyft-service-fees</code></td></tr>
+<tr data-search="e06-00-0001 registration 2023 gmc acadia internal registration-2023-gmc-acadia"><td class="c-code"><code>E06-00-0001</code></td><td>Registration 2023 GMC Acadia</td><td class="c-inst">Internal</td><td class="c-key"><code>registration-2023-gmc-acadia</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E07</span> Insurance <span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e07-36-0001 medical insurance crc services, llc medical-insurance"><td class="c-code"><code>E07-36-0001</code></td><td>Medical insurance</td><td class="c-inst">CRC Services, LLC</td><td class="c-key"><code>medical-insurance</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E08</span> Household and personal <span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e08-00-0001 household supplies internal household-supplies"><td class="c-code"><code>E08-00-0001</code></td><td>Household supplies</td><td class="c-inst">Internal</td><td class="c-key"><code>household-supplies</code></td></tr>
+<tr data-search="e08-00-0002 groceries internal groceries"><td class="c-code"><code>E08-00-0002</code></td><td>Groceries</td><td class="c-inst">Internal</td><td class="c-key"><code>groceries</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E09</span> Medical <span class="count">2</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e09-00-0001 prescriptions internal prescriptions"><td class="c-code"><code>E09-00-0001</code></td><td>Prescriptions</td><td class="c-inst">Internal</td><td class="c-key"><code>prescriptions</code></td></tr>
+<tr data-search="e09-00-0002 doctor visit copays internal doctor-visit-copays"><td class="c-code"><code>E09-00-0002</code></td><td>Doctor visit copays</td><td class="c-inst">Internal</td><td class="c-key"><code>doctor-visit-copays</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E10</span> Vehicles <span class="count">3</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e10-00-0001 registration 2007 ford ranger internal registration-2007-ford-ranger"><td class="c-code"><code>E10-00-0001</code></td><td>Registration 2007 Ford Ranger</td><td class="c-inst">Internal</td><td class="c-key"><code>registration-2007-ford-ranger</code></td></tr>
+<tr data-search="e10-00-0002 registration 2024 mazda cx-90 internal registration-2024-mazda-cx-90"><td class="c-code"><code>E10-00-0002</code></td><td>Registration 2024 Mazda CX-90</td><td class="c-inst">Internal</td><td class="c-key"><code>registration-2024-mazda-cx-90</code></td></tr>
+<tr data-search="e10-00-3942 registration 2023 buick encore gx internal registration-2023-buick-encore-gx"><td class="c-code"><code>E10-00-3942</code></td><td>Registration 2023 Buick Encore GX</td><td class="c-inst">Internal</td><td class="c-key"><code>registration-2023-buick-encore-gx</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E11</span> Donations <span class="count">1</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e11-58-xxxx lds church donations the church of jesus christ of latter-day saints lds-church-donations"><td class="c-code"><code>E11-58-XXXX</code></td><td>LDS Church donations</td><td class="c-inst">The Church of Jesus Christ of Latter-day Saints</td><td class="c-key"><code>lds-church-donations</code></td></tr>
+</tbody></table></div></div>
+<div class="subclass">
+<h3><span class="scode">E12</span> Family support <span class="count">4</span></h3>
+<div class="tw"><table><thead><tr><th class="c-code">Code</th><th>Account</th><th class="c-inst">Institution</th><th class="c-key">Key</th></tr></thead><tbody>
+<tr data-search="e12-59-0001 irene personal allowance irene carcamo irene-personal-allowance"><td class="c-code"><code>E12-59-0001</code></td><td>Irene personal allowance</td><td class="c-inst">Irene Carcamo</td><td class="c-key"><code>irene-personal-allowance</code></td></tr>
+<tr data-search="e12-59-0002 gift to irene, settlement irene carcamo irene-gift-settlement"><td class="c-code"><code>E12-59-0002</code></td><td>Gift to Irene, settlement</td><td class="c-inst">Irene Carcamo</td><td class="c-key"><code>irene-gift-settlement</code></td></tr>
+<tr data-search="e12-59-0003 gift to irene, tax refunds irene carcamo irene-gift-tax-refunds"><td class="c-code"><code>E12-59-0003</code></td><td>Gift to Irene, tax refunds</td><td class="c-inst">Irene Carcamo</td><td class="c-key"><code>irene-gift-tax-refunds</code></td></tr>
+<tr data-search="e12-41-xxxx gifts to perla perla escobar perla-gifts"><td class="c-code"><code>E12-41-XXXX</code></td><td>Gifts to Perla</td><td class="c-inst">Perla Escobar</td><td class="c-key"><code>perla-gifts</code></td></tr>
+</tbody></table></div></div>
+</section>
+
+  <footer>Generated 2026-09-25 from <code>Lester_Carcamo_Accounting.db</code> by <code>scripts/build_chart_of_accounts.py</code>. Rebuild after adding or changing accounts.</footer>
+</main>
+<script>
+  const q = document.getElementById("q");
+  q.addEventListener("input", () => {
+    const term = q.value.trim().toLowerCase();
+    document.querySelectorAll("tbody tr").forEach(tr => {
+      tr.classList.toggle("hidden", term !== "" && !tr.dataset.search.includes(term));
+    });
+    document.querySelectorAll(".subclass").forEach(div => {
+      const rows = div.querySelectorAll("tbody tr");
+      const visible = [...rows].some(r => !r.classList.contains("hidden"));
+      div.classList.toggle("hidden", term !== "" && !visible);
+    });
+    document.querySelectorAll("section.class").forEach(sec => {
+      const any = [...sec.querySelectorAll(".subclass")].some(d => !d.classList.contains("hidden"));
+      sec.classList.toggle("hidden", term !== "" && !any);
+    });
+  });
+</script>
+</body>
+</html>

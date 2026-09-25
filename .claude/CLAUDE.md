@@ -21,9 +21,18 @@
 - The books' cutover date is `2026-07-30`; only transactions strictly after that date are recorded
   individually. Statements straddling the cutoff have their pre-cutoff activity absorbed into the
   opening balance (computed as of the end of `2026-07-30`), per `numbers/sqlite/source_document_rule.txt`.
-- This SQLite build is version 3.31.1 and does **not** support `ALTER TABLE ... DROP COLUMN`.
-  Dropping a column requires the full rebuild procedure: create a new table, copy data, drop the
-  old table, rename the new one, then recreate every trigger and view that referenced the old table.
+- SQLite version (validated 2026-09-25): the custom-sqlite MCP server runs on Python 3.14 with
+  **SQLite 3.50.4**, which supports `ALTER TABLE ... DROP COLUMN` (added in 3.35) and window
+  functions (3.25). The earlier note saying 3.31.1 without DROP COLUMN was wrong. `DROP COLUMN` still
+  fails when the column is part of a PRIMARY KEY, UNIQUE constraint, index, foreign key, or is used in
+  a view, trigger or CHECK constraint; in those cases use the full rebuild procedure (create a new table,
+  copy data, drop the old table, rename the new one, then recreate every trigger and view that
+  referenced it).
+- Use the **custom-sqlite MCP tools** for all database work: `quick_query` (read-only connection)
+  for reads, and `execute_write` (one statement, `?` placeholders, foreign keys on, rollback on error)
+  for approved changes. Don't query or write the database with ad hoc Python or shell commands.
+  Report-generator scripts in `scripts/` (for example `build_chart_of_accounts.py`) may read it with
+  Python's built-in `sqlite3` module in read-only mode.
 - Posted journal entries are immutable (trigger-enforced). Corrections require a new correcting
   entry; never edit or delete a posted one.
 - Capital One 360 "My savings" account (…2633, joint with Perla M Escobar) is **fully excluded**
