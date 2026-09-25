@@ -1,0 +1,91 @@
+-- ============================================================
+-- NEW JOURNAL ENTRY - template
+-- Copy this file, change the values marked CHANGE, and run the
+-- steps in order, one statement at a time.
+--
+-- EXAMPLE shown below: JE-000002, already recorded. Do not run it as is.
+--   2026-07-30  Opening balance Bank of America checking
+--   Debit  A01-35-7632  Bank of America checking   46,539.88  (4653988 cents)
+--   Credit C01-00-0001  Lester Carcamo, Capital    46,539.88  (4653988 cents)
+-- ============================================================
+--
+-- Rules to remember
+--   * Dates are YYYY-MM-DD, for example 2026-07-30.
+--   * Amounts are whole cents: $998.86 is 99886, $5.00 is 500.
+--   * Each line has a debit OR a credit, never both. Put 0 on the other side.
+--   * Total debits must equal total credits, or the entry cannot be posted.
+--   * Descriptions allow only letters, numbers, spaces, commas, periods
+--     and hyphens. No apostrophes and no ampersands: write "and".
+--   * Once posted, an entry is locked. To fix a mistake, record a
+--     correcting entry.
+--
+-- Entry types (journal_entry_type_id)
+--   1 = Opening     starting balances
+--   2 = Regular     everyday transactions
+--   3 = Adjusting   corrections and period-end adjustments
+--   4 = Closing     year-end closing into Capital
+
+
+-- ------------------------------------------------------------
+-- LOOKUP (optional): find account codes
+-- ------------------------------------------------------------
+SELECT account_code, account_name, normal_balance
+FROM accounts_chart_view
+ORDER BY class_sort_order, subclass_sort_order, sort_order;
+
+
+-- ------------------------------------------------------------
+-- STEP 1: create the entry (it starts unposted)
+-- CHANGE: date, entry type, description
+-- ------------------------------------------------------------
+INSERT INTO journal_entry_input (entry_date, journal_entry_type_id, description)
+VALUES ('2026-07-30', 1, 'Opening balance Bank of America checking');
+
+
+-- ------------------------------------------------------------
+-- STEP 2: add the lines
+-- The lines attach to the entry you just created in step 1.
+-- CHANGE: line number, account code, debit cents, credit cents.
+-- Add or remove lines as needed (at least 2). End the last line
+-- with a semicolon; end every other line with a comma.
+-- ------------------------------------------------------------
+INSERT INTO journal_entry_line (journal_entry_input_id, line_number, account_id, debit_cents, credit_cents)
+VALUES
+    ((SELECT max(journal_entry_input_id) FROM journal_entry_input), 1,
+     (SELECT account_id FROM accounts_chart_view WHERE account_code = 'A01-35-7632'), 4653988, 0),
+    ((SELECT max(journal_entry_input_id) FROM journal_entry_input), 2,
+     (SELECT account_id FROM accounts_chart_view WHERE account_code = 'C01-00-0001'), 0, 4653988);
+
+
+-- ------------------------------------------------------------
+-- CHECK (optional, before posting): review the entry and its totals
+-- difference_cents must be 0
+-- ------------------------------------------------------------
+SELECT entry_number, entry_date, line_number, account_code, account_name, debit_amount, credit_amount
+FROM journal_view
+WHERE journal_entry_input_id = (SELECT max(journal_entry_input_id) FROM journal_entry_input)
+ORDER BY line_number;
+
+SELECT sum(debit_cents) AS debit_cents,
+       sum(credit_cents) AS credit_cents,
+       sum(debit_cents) - sum(credit_cents) AS difference_cents
+FROM journal_entry_line
+WHERE journal_entry_input_id = (SELECT max(journal_entry_input_id) FROM journal_entry_input);
+
+
+-- ------------------------------------------------------------
+-- STEP 3: post the entry (the database refuses if it does not balance)
+-- ------------------------------------------------------------
+UPDATE journal_entry_input
+SET is_posted = 1
+WHERE journal_entry_input_id = (SELECT max(journal_entry_input_id) FROM journal_entry_input);
+
+
+-- ------------------------------------------------------------
+-- FIX BEFORE POSTING (only if step 3 was refused)
+-- An unposted entry can still be changed. For example, fix a line amount:
+-- ------------------------------------------------------------
+-- UPDATE journal_entry_line
+-- SET credit_cents = 4653988
+-- WHERE journal_entry_input_id = (SELECT max(journal_entry_input_id) FROM journal_entry_input)
+--   AND line_number = 2;

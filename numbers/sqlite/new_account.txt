@@ -1,0 +1,9 @@
+-- New account: Bank of America, regular savings, last four 3435
+-- Code shown in accounts_chart_view: A02-35-3435
+--   A  = Assets (class)
+--   02 = Savings (subclass_id 2)
+--   35 = Bank of America (institution_id 15)
+--   3435 = last four digits (account_suffix)
+
+INSERT INTO account (account_id, subclass_id, institution_id, account_suffix, account_key, account_name, official_name, sort_order)
+VALUES (49, 2, 15, '3435', 'boaf-savings-3435', 'Bank of America regular savings', NULL, 1);

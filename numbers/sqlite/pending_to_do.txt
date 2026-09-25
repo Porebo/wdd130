@@ -1,0 +1,15 @@
+PENDING TO DO
+Lester Carcamo household books
+
+============================================================
+OPEN ITEMS
+============================================================
+
+1. Decide what to do with source documents
+   Added: 2026-09-24
+   Status: pending decision
+   Context: statements, pay stubs and bills (PDFs) are the source
+   documents behind each journal entry (see source_document_rule.txt).
+   To decide: whether and where to keep them, how to name and file
+   them, and whether journal entries should link back to the document
+   they came from.

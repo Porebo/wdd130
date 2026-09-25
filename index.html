@@ -4,6 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <style>
+      #server-state {
+        color: #fff;
+        background: #6b7280;
+        border: none;
+        border-radius: 1em;
+        padding: 0.3em 0.9em;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      #server-state.on { background: #15803d; }
+      #server-state.off { background: #b91c1c; }
+    </style>
   </head>
   <body>
     <header>
@@ -15,6 +28,84 @@
           <li><a href="numbers/paymentsImportanDates.html">Payment Import and Dates</a></li>
         </ul>
       </nav>
+      <section>
+        <h2>Check the server from PowerShell</h2>
+        <pre><code>curl.exe -I http://localhost:8000</code></pre>
+        <p>Asks the server for the home page's headers only, not the page itself. It's a quick way to see if the server is up.</p>
+        <ul>
+          <li><code>-I</code> sends a HEAD request, meaning "headers only."</li>
+          <li><code>HTTP/1.0 200 OK</code> in the reply means the server is running.</li>
+          <li>"Failed to connect" means the server is off. Double-click <code>scripts/start-server.bat</code> to start it.</li>
+          <li><code>X-Server-Id</code> changes each time the server restarts.</li>
+          <li>Type <code>curl.exe</code>, not just <code>curl</code>. In older Windows PowerShell, <code>curl</code> is a shortcut for a different command that doesn't accept <code>-I</code>.</li>
+        </ul>
+      </section>
     </main>
+    <footer>
+      <p>This site runs at <a href="http://localhost:8000/">http://localhost:8000/</a>. If the page doesn't load, double-click <code>scripts/start-server.bat</code> in the project folder, or ask Claude to restart the server.</p>
+      <button type="button" id="server-state" title="Click to check now">Server: checking...</button>
+      <button type="button" id="restart-server">Restart server</button>
+      <span id="restart-status" role="status"></span>
+    </footer>
+    <script>
+      const stateButton = document.getElementById("server-state");
+      const restartButton = document.getElementById("restart-server");
+      const restartStatus = document.getElementById("restart-status");
+
+      // Green when the server answers, red when it doesn't. Checks every
+      // 3 seconds while the page is open, or right away when clicked.
+      async function checkServer() {
+        let on = false;
+        try {
+          const response = await fetch("/", {
+            method: "HEAD",
+            cache: "no-store",
+            signal: AbortSignal.timeout(2000),
+          });
+          on = response.ok;
+        } catch {}
+        stateButton.className = on ? "on" : "off";
+        stateButton.textContent = on ? "Server: on" : "Server: off";
+      }
+
+      stateButton.addEventListener("click", checkServer);
+      checkServer();
+      setInterval(checkServer, 3000);
+
+      // serve.py sends a new X-Server-Id each time it starts.
+      async function serverId() {
+        const response = await fetch("/", { method: "HEAD", cache: "no-store" });
+        return response.headers.get("X-Server-Id");
+      }
+
+      restartButton.addEventListener("click", async () => {
+        restartButton.disabled = true;
+        restartStatus.textContent = "Restarting...";
+        let oldId;
+        try {
+          oldId = await serverId();
+          const response = await fetch("/restart", { method: "POST" });
+          if (!oldId || !response.ok) throw new Error();
+        } catch {
+          restartStatus.textContent = "Restart failed. Is the server running from scripts/serve.py?";
+          restartButton.disabled = false;
+          return;
+        }
+        // Wait until the new server is answering.
+        for (let attempt = 0; attempt < 40; attempt++) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+          try {
+            const newId = await serverId();
+            if (newId && newId !== oldId) {
+              restartStatus.textContent = "Server restarted.";
+              restartButton.disabled = false;
+              return;
+            }
+          } catch {}
+        }
+        restartStatus.textContent = "Server didn't come back. Double-click scripts/start-server.bat.";
+        restartButton.disabled = false;
+      });
+    </script>
   </body>
 </html>

@@ -1,0 +1,109 @@
+SOURCE DOCUMENT RULE
+Lester Carcamo household books
+Adopted 2026-09-24
+
+============================================================
+PURPOSE
+============================================================
+The same transaction often appears on two statements. For example,
+a credit card payment shows on the card statement AND on the bank
+statement. It is ONE transaction and must be recorded ONCE.
+
+This rule says which statement each kind of transaction is recorded
+from. The other statement is used only to check it.
+
+
+============================================================
+THE RULE
+============================================================
+
+1. CREDIT CARD STATEMENTS
+   Record:  purchases, fees, interest, and refunds or returns
+            (everything except payments)
+   Check:   payments (they are recorded from the bank statement)
+
+2. BANK STATEMENTS
+   Record:  every line - payments to cards and loans, deposits
+            (paychecks, rideshare), withdrawals, and transfers
+   Check:   nothing is skipped; every line is recorded or matched
+
+3. LOAN AND MORTGAGE STATEMENTS
+   Record:  nothing on their own
+   Use for: the split of each payment into principal, interest
+            and escrow. The payment itself comes from the bank
+            statement (date and total); the lender statement
+            supplies the split lines of that same entry.
+
+
+============================================================
+SPECIAL CASES
+============================================================
+
+Transfers between your own accounts (for example checking to savings)
+   Record once, from the statement of the account the money LEFT.
+   Check it on the statement of the account it arrived in.
+
+Refunds and returns on a card
+   Record from the card statement. They lower the card but no money
+   moves through the bank.
+
+Split deposits (one paycheck into several accounts)
+   Record once, as one entry with one line per account.
+
+Dates that differ between statements
+   A payment can show on the bank one or two days apart from the card.
+   Match on amount and payee, allowing a few days' difference. Use
+   the bank date as the entry date.
+
+
+============================================================
+EXAMPLE - Target Circle Card statement closing 2026-08-10
+============================================================
+
+From the card statement, record:
+   2026-08-09  purchase   2.79    debit expense, credit L01-24-6343
+   2026-08-09  purchase 118.69    debit expense, credit L01-24-6343
+
+From the card statement, only check:
+   2026-08-06  autopay   30.00    (recorded from the bank statement)
+
+From the Bank of America statement, record:
+   2026-08-06  autopay   30.00    debit L01-24-6343, credit A01-35-7632
+
+The one autopay entry lowers the card AND lowers checking.
+
+
+============================================================
+OPENING BALANCES (CUT-OFF)
+============================================================
+
+The books start on 2026-07-30.
+   * Each account opens at its balance at the end of 2026-07-30,
+     recorded against C01-00-0001 Lester Carcamo, Capital.
+       Asset opening:     debit the asset,       credit Capital
+       Liability opening: debit Capital,         credit the liability
+   * Only transactions AFTER 2026-07-30 are recorded.
+   * When a statement straddles the cut-off, work out the balance on
+     2026-07-30 from the statement's transaction list.
+     Example: Target card 177.11 previous balance + 60.03 purchase
+     - 177.11 payment (all before 7/30) = 60.03 opening balance.
+
+
+============================================================
+RECONCILIATION CONTROL
+============================================================
+
+After both sides of a statement period are entered, the books must
+equal the statement:
+
+   Each bank account   books balance = bank statement ending balance
+   Each credit card    books balance = card statement ending balance
+                       (only after the bank statement is also entered)
+
+If a card does not match, look first for a payment still missing from
+the bank side. If a bank account does not match, look for a line not
+yet recorded or recorded twice.
+
+Example: Target card on 2026-08-10
+   60.03 opening - 30.00 autopay + 2.79 + 118.69 = 151.51
+   151.51 = statement ending balance  -> reconciled
