@@ -6,6 +6,7 @@ POST /restart makes the server restart itself in a fresh process.
 """
 import os
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -96,7 +97,7 @@ def main():
         server.shutdown()
         server.server_close()
     print("Restarting server...", flush=True)
-    os.execv(sys.executable, [sys.executable, os.path.abspath(__file__)])
+    subprocess.Popen([sys.executable, os.path.abspath(__file__)])
 
 
 if __name__ == "__main__":
