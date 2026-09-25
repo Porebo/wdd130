@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledger Logical Diagram</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --ink: #1d2433;
+    --muted: #5d6679;
+    --line: #c9cfdb;
+    --chart: #2f6f4f;
+    --journal: #1f4e79;
+    --head-ink: #ffffff;
+    --row-alt: #f1f4f8;
+    --id: #b7791f;
+    --rel: #4a5568;
+    --opt: #8a94a6;
+    --label: #2d3748;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161f;
+      --surface: #1b2130;
+      --ink: #e6e9ef;
+      --muted: #9aa3b5;
+      --line: #36405a;
+      --chart: #3a8a63;
+      --journal: #2c5d8f;
+      --head-ink: #ffffff;
+      --row-alt: #20283a;
+      --id: #f6c35b;
+      --rel: #a9b3c6;
+      --opt: #7a849a;
+      --label: #d5dae4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161f;
+    --surface: #1b2130;
+    --ink: #e6e9ef;
+    --muted: #9aa3b5;
+    --line: #36405a;
+    --chart: #3a8a63;
+    --journal: #2c5d8f;
+    --head-ink: #ffffff;
+    --row-alt: #20283a;
+    --id: #f6c35b;
+    --rel: #a9b3c6;
+    --opt: #7a849a;
+    --label: #d5dae4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 1960px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 32px 0 10px; }
+  p.sub { color: var(--muted); margin: 0 0 16px; }
+  .canvas {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  .canvas svg { display: block; min-width: 1500px; width: 100%; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 12px 0 0; color: var(--muted); font-size: 13px; align-items: center; }
+  .legend svg { vertical-align: middle; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+  ul.rules { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px 14px 34px; margin: 0; }
+  ul.rules li { margin: 4px 0; }
+  code { font: 12.5px ui-monospace, Consolas, monospace; }
+
+  /* SVG */
+  .e-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+  .e-head.chart { fill: var(--chart); }
+  .e-head.journal { fill: var(--journal); }
+  .e-title { fill: var(--head-ink); font: 600 14px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .e-alt { fill: var(--row-alt); }
+  .a-name { fill: var(--ink); font: 13px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .a-name.opt { fill: var(--muted); font-style: italic; }
+  .a-id { fill: var(--id); font: 700 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .a-tag { fill: var(--muted); font: 11px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .rel { fill: none; stroke: var(--rel); stroke-width: 1.6; }
+  .rel.opt { stroke: var(--opt); stroke-dasharray: 5 4; }
+  .mk { fill: none; stroke: var(--rel); stroke-width: 1.6; }
+  .mk-dot { fill: var(--surface); stroke: var(--rel); stroke-width: 1.6; }
+  .r-label { fill: var(--label); font: italic 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+             paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ledger database: logical diagram</h1>
+  <p class="sub">The business entities of Lester Carcamo's household books, what describes each one, and how they relate. Keys, data types and technical columns are left out; see <code>physical_diag.html</code> for those.</p>
+
+  <div class="canvas"><svg id="diagram" role="img" aria-label="Logical entity relationship diagram of the ledger"></svg></div>
+
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--chart)"></span>Chart of accounts</span>
+    <span><span class="swatch" style="background:var(--journal)"></span>Journal</span>
+    <span><b style="color:var(--id)">#</b> identifies the entity</span>
+    <span><i>italic</i> = optional</span>
+    <span><svg width="70" height="20"><line x1="4" y1="10" x2="66" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="3" x2="12" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="18" y1="3" x2="18" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="52" y1="10" x2="66" y2="3" stroke="currentColor" stroke-width="1.5"/><line x1="52" y1="10" x2="66" y2="17" stroke="currentColor" stroke-width="1.5"/><circle cx="45" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg> exactly one → zero or many</span>
+    <span><svg width="70" height="20"><line x1="4" y1="10" x2="66" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="3" x2="12" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="18" y1="3" x2="18" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="52" y1="10" x2="66" y2="3" stroke="currentColor" stroke-width="1.5"/><line x1="52" y1="10" x2="66" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="46" y1="3" x2="46" y2="17" stroke="currentColor" stroke-width="1.5"/></svg> exactly one → one or many</span>
+    <span><svg width="70" height="20"><line x1="4" y1="10" x2="66" y2="10" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/><line x1="12" y1="3" x2="12" y2="17" stroke="currentColor" stroke-width="1.5"/><circle cx="22" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg> zero or one (optional)</span>
+  </div>
+
+  <h2>Business rules</h2>
+  <ul class="rules">
+    <li>Every account belongs to exactly one <b>subclass</b> (and through it one <b>class</b>) and exactly one <b>institution</b>. Accounts with no outside party use the Internal institution (00).</li>
+    <li>An account's <b>code</b> is class initial + subclass number - institution number - account suffix, for example <code>L01-42-2946</code>. The suffix is the last 4 digits, or <code>XXXX</code>/<code>YYYY</code> when there's no number.</li>
+    <li>Assets and Expenses have a normal <b>debit</b> balance; Liabilities, Capital and Revenue have a normal <b>credit</b> balance.</li>
+    <li>A subclass on the balance sheet is <b>current</b> or <b>long-term</b>; income statement subclasses have no term.</li>
+    <li>Each journal entry line is either a debit or a credit, never both. Amounts are whole cents.</li>
+    <li>A journal entry can be <b>posted</b> only when it has at least 2 lines and total debits equal total credits. Once posted it's locked; mistakes are fixed with a correcting entry.</li>
+    <li>Each journal entry is linked to its source documents. The document it was <b>recorded</b> from, and any document used to <b>check</b> it. The same statement line can be recorded only once.</li>
+  </ul>
+</main>
+
+<script>
+(function () {
+  const W = 250, HEAD = 36, ROW = 24, PAD = 10;
+
+  // attrs: [name, tag]; tag "id" = identifier, "uq" = also unique, "opt" = optional
+  const ents = {
+    "Account Class": { x: 40, y: 40, grp: "chart", attrs: [
+      ["Class initial", "id"], ["Class name", "uq"], ["Normal balance", ""], ["Display order", ""]] },
+    "Account Term": { x: 40, y: 300, grp: "chart", attrs: [
+      ["Term name (current, long-term)", "id"]] },
+    "Account Subclass": { x: 460, y: 120, grp: "chart", attrs: [
+      ["Subclass number", "id"], ["Subclass name", "uq"], ["Display order", ""]] },
+    "Institution": { x: 460, y: 400, grp: "chart", attrs: [
+      ["Institution number", "id"], ["Institution name", "uq"]] },
+    "Account": { x: 880, y: 200, grp: "chart", attrs: [
+      ["Account code", "id"], ["Account suffix", ""], ["Account key", "uq"], ["Account name", ""],
+      ["Official name", "opt"], ["Display order", ""]] },
+    "Journal Entry Line": { x: 1300, y: 200, grp: "journal", attrs: [
+      ["Line number", "id"], ["Debit amount", ""], ["Credit amount", ""]] },
+    "Journal Entry Type": { x: 1720, y: 20, grp: "journal", attrs: [
+      ["Entry type name", "id"], ["Display order", ""]] },
+    "Journal Entry": { x: 1720, y: 200, grp: "journal", attrs: [
+      ["Entry number", "id"], ["Entry date", ""], ["Description", ""], ["Posted", ""]] },
+    "Source Document Link": { x: 1720, y: 430, grp: "journal", attrs: [
+      ["Document file name", ""], ["Role (record or check)", ""], ["Statement line reference", "opt"]] }
+  };
+
+  // [child, child side, child dy, parent, parent side, parent dy, via x, child min ("0" or "1"), parent optional, label, label placement]
+  // label placement: "via" = centered on the vertical run; "right" = to the right of the vertical run
+  const rels = [
+    ["Account Subclass", "left", -12, "Account Class", "right", 0, 375, "1", false, "is divided into", "via"],
+    ["Account Subclass", "left", 12, "Account Term", "right", 0, 375, "0", true, "classifies", "via"],
+    ["Account", "left", -14, "Account Subclass", "right", 0, 795, "0", false, "groups", "via"],
+    ["Account", "left", 14, "Institution", "right", 0, 795, "0", false, "holds", "via"],
+    ["Journal Entry Line", "left", 0, "Account", "right", -20, 1215, "0", false, "is posted to", "via"],
+    ["Journal Entry Line", "right", 0, "Journal Entry", "left", -8, 1635, "1", false, "consists of", "via"],
+    ["Journal Entry", "right", -20, "Journal Entry Type", "right", 0, 2005, "0", false, "categorizes", "right"],
+    ["Source Document Link", "left", 0, "Journal Entry", "left", 20, 1635, "0", false, "is supported by", "via"]
+  ];
+
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("diagram");
+  const el = (name, attrs, parent, text) => {
+    const e = document.createElementNS(NS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    (parent || svg).appendChild(e);
+    return e;
+  };
+
+  let maxX = 0, maxY = 0;
+  for (const e of Object.values(ents)) {
+    e.h = HEAD + e.attrs.length * ROW + PAD;
+    e.mid = e.y + e.h / 2;
+    maxX = Math.max(maxX, e.x + W); maxY = Math.max(maxY, e.y + e.h);
+  }
+  svg.setAttribute("viewBox", `0 0 ${maxX + 130} ${maxY + 30}`);
+
+  const gRel = el("g", {});
+  const gEnt = el("g", {});
+  const gLbl = el("g", {});
+  const edgeX = (e, side) => side === "left" ? e.x : e.x + W;
+
+  for (const [c, cs, cdy, p, ps, pdy, via, cmin, popt, label, place] of rels) {
+    const ce = ents[c], pe = ents[p];
+    const cx = edgeX(ce, cs), cy = ce.mid + cdy;
+    const px = edgeX(pe, ps), py = pe.mid + pdy;
+    el("path", { d: `M${cx},${cy} H${via} V${py} H${px}`, class: "rel" + (popt ? " opt" : "") }, gRel);
+
+    // child end: crow's foot, with circle (zero or many) or bar (one or many)
+    const cd = cs === "left" ? -1 : 1;
+    const tip = cx + cd * 15;
+    el("path", { d: `M${tip},${cy} L${cx},${cy - 8} M${tip},${cy} L${cx},${cy} M${tip},${cy} L${cx},${cy + 8}`, class: "mk" }, gRel);
+    if (cmin === "0") el("circle", { cx: cx + cd * 22, cy: cy, r: 4.5, class: "mk-dot" }, gRel);
+    else el("path", { d: `M${cx + cd * 20},${cy - 8} V${cy + 8}`, class: "mk" }, gRel);
+
+    // parent end: exactly one, or zero or one
+    const pd = ps === "left" ? -1 : 1;
+    el("path", { d: `M${px + pd * 10},${py - 8} V${py + 8}`, class: "mk" }, gRel);
+    if (popt) el("circle", { cx: px + pd * 20, cy: py, r: 4.5, class: "mk-dot" }, gRel);
+    else el("path", { d: `M${px + pd * 16},${py - 8} V${py + 8}`, class: "mk" }, gRel);
+
+    // label: centered on the vertical run (above the line when the run is short), or to its right
+    const short = Math.abs(py - cy) < 40;
+    const ty = short ? Math.min(cy, py) - 14 : (cy + py) / 2 + 4;
+    if (place === "right") el("text", { x: via + 8, y: ty, "text-anchor": "start", class: "r-label" }, gLbl, label);
+    else el("text", { x: via, y: ty, "text-anchor": "middle", class: "r-label" }, gLbl, label);
+  }
+
+  for (const [name, e] of Object.entries(ents)) {
+    const g = el("g", {}, gEnt);
+    el("rect", { x: e.x, y: e.y, width: W, height: e.h, rx: 10, class: "e-box" }, g);
+    el("path", { d: `M${e.x},${e.y + HEAD} V${e.y + 10} a10,10 0 0 1 10,-10 H${e.x + W - 10} a10,10 0 0 1 10,10 V${e.y + HEAD} Z`, class: "e-head " + e.grp }, g);
+    el("text", { x: e.x + W / 2, y: e.y + 23, "text-anchor": "middle", class: "e-title" }, g, name);
+    e.attrs.forEach(([n, tag], i) => {
+      const ry = e.y + HEAD + i * ROW;
+      if (i % 2 === 1) el("rect", { x: e.x + 1, y: ry, width: W - 2, height: ROW, class: "e-alt" }, g);
+      if (tag === "id") el("text", { x: e.x + 12, y: ry + 17, class: "a-id" }, g, "#");
+      el("text", { x: e.x + 26, y: ry + 17, class: "a-name" + (tag === "opt" ? " opt" : "") }, g, n);
+      if (tag === "uq") el("text", { x: e.x + W - 12, y: ry + 17, "text-anchor": "end", class: "a-tag" }, g, "unique");
+    });
+  }
+})();
+</script>
+</body>
+</html>

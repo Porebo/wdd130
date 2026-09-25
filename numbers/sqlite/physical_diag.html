@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledger Physical Diagram</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --ink: #1d2433;
+    --muted: #5d6679;
+    --line: #c9cfdb;
+    --head: #1f4e79;
+    --head-ink: #ffffff;
+    --row-alt: #f1f4f8;
+    --pk: #b7791f;
+    --fk: #2b6cb0;
+    --uq: #6b46c1;
+    --rel: #4a5568;
+    --opt: #8a94a6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161f;
+      --surface: #1b2130;
+      --ink: #e6e9ef;
+      --muted: #9aa3b5;
+      --line: #36405a;
+      --head: #2c5d8f;
+      --head-ink: #ffffff;
+      --row-alt: #20283a;
+      --pk: #f6c35b;
+      --fk: #7fb2f0;
+      --uq: #b69cf5;
+      --rel: #a9b3c6;
+      --opt: #7a849a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161f;
+    --surface: #1b2130;
+    --ink: #e6e9ef;
+    --muted: #9aa3b5;
+    --line: #36405a;
+    --head: #2c5d8f;
+    --head-ink: #ffffff;
+    --row-alt: #20283a;
+    --pk: #f6c35b;
+    --fk: #7fb2f0;
+    --uq: #b69cf5;
+    --rel: #a9b3c6;
+    --opt: #7a849a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 1960px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 32px 0 10px; }
+  p.sub { color: var(--muted); margin: 0 0 16px; }
+  .canvas {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  .canvas svg { display: block; min-width: 1500px; width: 100%; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 12px 0 0; color: var(--muted); font-size: 13px; align-items: center; }
+  .legend svg { vertical-align: middle; }
+  .badge { font: 600 11px ui-monospace, Consolas, monospace; padding: 1px 5px; border-radius: 4px; border: 1px solid currentColor; }
+  .b-pk { color: var(--pk); } .b-fk { color: var(--fk); } .b-uq { color: var(--uq); }
+  .tbl-wrap { overflow-x: auto; }
+  table.info { border-collapse: collapse; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 14px; }
+  table.info th, table.info td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.info th { background: var(--row-alt); font-weight: 600; }
+  table.info tr:last-child td { border-bottom: 0; }
+  code { font: 12.5px ui-monospace, Consolas, monospace; }
+
+  /* SVG */
+  .t-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+  .t-head { fill: var(--head); }
+  .t-title { fill: var(--head-ink); font: 600 13px ui-monospace, Consolas, monospace; }
+  .t-alt { fill: var(--row-alt); }
+  .c-name { fill: var(--ink); font: 11.5px ui-monospace, Consolas, monospace; }
+  .c-name.pk { font-weight: 700; }
+  .c-name.null { fill: var(--muted); font-style: italic; }
+  .c-type { fill: var(--muted); font: 11px ui-monospace, Consolas, monospace; }
+  .k-pk { fill: var(--pk); font: 700 10.5px ui-monospace, Consolas, monospace; }
+  .k-fk { fill: var(--fk); font: 700 10.5px ui-monospace, Consolas, monospace; }
+  .k-uq { fill: var(--uq); font: 700 10.5px ui-monospace, Consolas, monospace; }
+  .rel { fill: none; stroke: var(--rel); stroke-width: 1.5; }
+  .rel.opt { stroke: var(--opt); stroke-dasharray: 5 4; }
+  .mk { fill: none; stroke: var(--rel); stroke-width: 1.5; }
+  .mk-dot { fill: var(--surface); stroke: var(--rel); stroke-width: 1.5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ledger database: physical diagram</h1>
+  <p class="sub"><code>Lester_Carcamo_Accounting.db</code> (SQLite). Tables, columns, data types, keys, and the foreign key joins between them. Views, indexes and triggers are listed below the diagram.</p>
+
+  <div class="canvas"><svg id="diagram" role="img" aria-label="Physical diagram of the ledger database tables and foreign key joins"></svg></div>
+
+  <div class="legend">
+    <span><span class="badge b-pk">PK</span> primary key</span>
+    <span><span class="badge b-fk">FK</span> foreign key</span>
+    <span><span class="badge b-uq">UQ</span> unique</span>
+    <span><i>italic</i> = nullable</span>
+    <span><svg width="70" height="20"><line x1="4" y1="10" x2="66" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="3" x2="12" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="18" y1="3" x2="18" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="52" y1="10" x2="66" y2="3" stroke="currentColor" stroke-width="1.5"/><line x1="52" y1="10" x2="66" y2="17" stroke="currentColor" stroke-width="1.5"/><circle cx="45" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg> exactly one parent → zero or many children</span>
+    <span><svg width="70" height="20"><line x1="4" y1="10" x2="66" y2="10" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/><line x1="12" y1="3" x2="12" y2="17" stroke="currentColor" stroke-width="1.5"/><circle cx="22" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg> optional parent (nullable FK)</span>
+  </div>
+
+  <h2>Composite unique constraints and indexes</h2>
+  <div class="tbl-wrap">
+  <table class="info">
+    <tr><th>Name</th><th>Table</th><th>Columns</th><th>Purpose</th></tr>
+    <tr><td><code>uq_account_subclass_name</code></td><td>account_subclass</td><td>class_id, subclass_name</td><td>No duplicate subclass names within a class</td></tr>
+    <tr><td><code>uq_account_subclass_number</code></td><td>account_subclass</td><td>class_id, subclass_number</td><td>No duplicate subclass numbers within a class</td></tr>
+    <tr><td><code>uq_account_code</code></td><td>account</td><td>subclass_id, institution_id, account_suffix</td><td>Makes the account code unique</td></tr>
+    <tr><td><code>uq_account_subclass_sort</code></td><td>account</td><td>subclass_id, sort_order</td><td>One display position per account within a subclass</td></tr>
+    <tr><td><code>uq_journal_entry_line_number</code></td><td>journal_entry_line</td><td>journal_entry_input_id, line_number</td><td>Line numbers are unique within an entry</td></tr>
+    <tr><td><code>uq_recorded_source_line</code> (unique index, partial)</td><td>journal_entry_source</td><td>document_file_name, source_line_ref <br>WHERE source_role = 'record'</td><td>A statement line can be recorded only once</td></tr>
+    <tr><td><code>ix_account_institution</code> (index)</td><td>account</td><td>institution_id</td><td>Speeds up joins to institution</td></tr>
+    <tr><td><code>ix_journal_entry_line_account</code> (index)</td><td>journal_entry_line</td><td>account_id</td><td>Speeds up account balances</td></tr>
+  </table>
+  </div>
+
+  <h2>Views and their joins</h2>
+  <div class="tbl-wrap">
+  <table class="info">
+    <tr><th>View</th><th>Base</th><th>Joins</th><th>Output</th></tr>
+    <tr>
+      <td><code>accounts_chart_view</code></td>
+      <td>account a</td>
+      <td>
+        INNER JOIN account_subclass s ON s.subclass_id = a.subclass_id<br>
+        INNER JOIN account_class c ON c.class_id = s.class_id<br>
+        INNER JOIN institution i ON i.institution_id = a.institution_id<br>
+        LEFT JOIN account_term t ON t.term_id = s.term_id
+      </td>
+      <td>Builds <code>account_code</code> = class_initial + subclass_number - institution_number - account_suffix (for example <code>L01-42-2946</code>), plus names, normal balance, term and sort orders</td>
+    </tr>
+    <tr>
+      <td><code>journal_view</code></td>
+      <td>journal_entry_input e</td>
+      <td>
+        INNER JOIN journal_entry_type t ON t.journal_entry_type_id = e.journal_entry_type_id<br>
+        INNER JOIN journal_entry_line l ON l.journal_entry_input_id = e.journal_entry_input_id<br>
+        INNER JOIN accounts_chart_view v ON v.account_id = l.account_id
+      </td>
+      <td>One row per line, with <code>entry_number</code> <code>JE-000001</code>, date, type, account code and name, and amounts in dollars</td>
+    </tr>
+  </table>
+  </div>
+
+  <h2>Triggers</h2>
+  <div class="tbl-wrap">
+  <table class="info">
+    <tr><th>Trigger</th><th>Fires</th><th>Rule enforced</th></tr>
+    <tr><td><code>trg_journal_entry_input_insert</code></td><td>BEFORE INSERT on journal_entry_input</td><td>A new entry must start unposted</td></tr>
+    <tr><td><code>trg_journal_entry_input_post</code></td><td>BEFORE UPDATE OF is_posted</td><td>Posting needs at least 2 lines and total debits = total credits</td></tr>
+    <tr><td><code>trg_journal_entry_input_update_locked</code></td><td>BEFORE UPDATE on journal_entry_input</td><td>A posted entry can't be changed</td></tr>
+    <tr><td><code>trg_journal_entry_input_delete_locked</code></td><td>BEFORE DELETE on journal_entry_input</td><td>A posted entry can't be deleted</td></tr>
+    <tr><td><code>trg_journal_entry_line_insert_locked</code></td><td>BEFORE INSERT on journal_entry_line</td><td>No lines can be added to a posted entry</td></tr>
+    <tr><td><code>trg_journal_entry_line_update_locked</code></td><td>BEFORE UPDATE on journal_entry_line</td><td>Lines of a posted entry can't be changed or moved into one</td></tr>
+    <tr><td><code>trg_journal_entry_line_delete_locked</code></td><td>BEFORE DELETE on journal_entry_line</td><td>Lines of a posted entry can't be deleted</td></tr>
+  </table>
+  </div>
+</main>
+
+<script>
+(function () {
+  const W = 290, HEAD = 32, ROW = 22, PAD = 8;
+
+  // k: PK / FK / UQ ; n: nullable
+  const tables = {
+    account_class: { x: 30, y: 40, cols: [
+      ["class_id", "SMALLINT", "PK"], ["class_initial", "CHAR(1)", "UQ"], ["class_name", "VARCHAR(50)", "UQ"],
+      ["normal_balance", "VARCHAR(6)", ""], ["sort_order", "SMALLINT", ""]] },
+    account_term: { x: 30, y: 300, cols: [
+      ["term_id", "SMALLINT", "PK"], ["term_name", "VARCHAR(20)", "UQ"]] },
+    account_subclass: { x: 400, y: 110, cols: [
+      ["subclass_id", "SMALLINT", "PK"], ["class_id", "SMALLINT", "FK"], ["term_id", "SMALLINT", "FK", true],
+      ["subclass_number", "CHAR(2)", ""], ["subclass_name", "VARCHAR(50)", ""], ["sort_order", "SMALLINT", ""]] },
+    institution: { x: 400, y: 420, cols: [
+      ["institution_id", "SMALLINT", "PK"], ["institution_number", "CHAR(2)", "UQ"], ["institution_name", "VARCHAR(100)", "UQ"]] },
+    account: { x: 770, y: 180, cols: [
+      ["account_id", "INTEGER", "PK"], ["subclass_id", "SMALLINT", "FK"], ["institution_id", "SMALLINT", "FK"],
+      ["account_suffix", "CHAR(4)", ""], ["account_key", "VARCHAR(60)", "UQ"], ["account_name", "VARCHAR(100)", ""],
+      ["official_name", "VARCHAR(100)", "", true], ["sort_order", "SMALLINT", ""]] },
+    journal_entry_line: { x: 1140, y: 200, cols: [
+      ["journal_entry_line_id", "INTEGER", "PK"], ["journal_entry_input_id", "INTEGER", "FK"], ["line_number", "SMALLINT", ""],
+      ["account_id", "INTEGER", "FK"], ["debit_cents", "INTEGER", ""], ["credit_cents", "INTEGER", ""]] },
+    journal_entry_type: { x: 1510, y: 20, cols: [
+      ["journal_entry_type_id", "SMALLINT", "PK"], ["entry_type_name", "VARCHAR(20)", "UQ"], ["sort_order", "SMALLINT", ""]] },
+    journal_entry_input: { x: 1510, y: 200, cols: [
+      ["journal_entry_input_id", "INTEGER", "PK"], ["entry_date", "DATE", ""], ["journal_entry_type_id", "SMALLINT", "FK"],
+      ["description", "VARCHAR(200)", ""], ["is_posted", "SMALLINT", ""]] },
+    journal_entry_source: { x: 1510, y: 420, cols: [
+      ["journal_entry_source_id", "INTEGER", "PK"], ["journal_entry_input_id", "INTEGER", "FK"], ["document_file_name", "VARCHAR(255)", ""],
+      ["source_role", "VARCHAR(10)", ""], ["source_line_ref", "VARCHAR(100)", "", true]] }
+  };
+
+  // child table, child column index, child side, parent table, parent column index, parent side, x of the vertical run, optional parent
+  const rels = [
+    ["account_subclass", 1, "left", "account_class", 0, "right", 360, false],
+    ["account_subclass", 2, "left", "account_term", 0, "right", 360, true],
+    ["account", 1, "left", "account_subclass", 0, "right", 730, false],
+    ["account", 2, "left", "institution", 0, "right", 730, false],
+    ["journal_entry_line", 3, "left", "account", 0, "right", 1100, false],
+    ["journal_entry_line", 1, "right", "journal_entry_input", 0, "left", 1470, false],
+    ["journal_entry_input", 2, "right", "journal_entry_type", 0, "right", 1835, false],
+    ["journal_entry_source", 1, "left", "journal_entry_input", 0, "left", 1470, false]
+  ];
+
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("diagram");
+  const el = (name, attrs, parent, text) => {
+    const e = document.createElementNS(NS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    (parent || svg).appendChild(e);
+    return e;
+  };
+  const rowY = (t, i) => t.y + HEAD + i * ROW + ROW / 2;
+  const edgeX = (t, side) => side === "left" ? t.x : t.x + W;
+
+  let maxX = 0, maxY = 0;
+  for (const t of Object.values(tables)) {
+    t.h = HEAD + t.cols.length * ROW + PAD;
+    maxX = Math.max(maxX, t.x + W); maxY = Math.max(maxY, t.y + t.h);
+  }
+  const VW = maxX + 70, VH = maxY + 30;
+  svg.setAttribute("viewBox", `0 0 ${VW} ${VH}`);
+
+  const gRel = el("g", {});
+  const gTbl = el("g", {});
+
+  // relationships
+  for (const [c, ci, cs, p, pi, ps, via, opt] of rels) {
+    const ct = tables[c], pt = tables[p];
+    const cx = edgeX(ct, cs), cy = rowY(ct, ci);
+    const px = edgeX(pt, ps), py = rowY(pt, pi);
+    el("path", { d: `M${cx},${cy} H${via} V${py} H${px}`, class: "rel" + (opt ? " opt" : "") }, gRel);
+
+    // child end: zero or many (circle + crow's foot)
+    const cd = cs === "left" ? -1 : 1;
+    const tip = cx + cd * 14;
+    el("path", { d: `M${tip},${cy} L${cx},${cy - 7} M${tip},${cy} L${cx},${cy} M${tip},${cy} L${cx},${cy + 7}`, class: "mk" }, gRel);
+    el("circle", { cx: cx + cd * 21, cy: cy, r: 4, class: "mk-dot" }, gRel);
+
+    // parent end: exactly one (two bars) or zero-or-one (bar + circle)
+    const pd = ps === "left" ? -1 : 1;
+    el("path", { d: `M${px + pd * 9},${py - 7} V${py + 7}`, class: "mk" }, gRel);
+    if (opt) el("circle", { cx: px + pd * 19, cy: py, r: 4, class: "mk-dot" }, gRel);
+    else el("path", { d: `M${px + pd * 15},${py - 7} V${py + 7}`, class: "mk" }, gRel);
+  }
+
+  // tables
+  for (const [name, t] of Object.entries(tables)) {
+    const g = el("g", {}, gTbl);
+    el("rect", { x: t.x, y: t.y, width: W, height: t.h, rx: 8, class: "t-box" }, g);
+    el("path", { d: `M${t.x},${t.y + HEAD} V${t.y + 8} a8,8 0 0 1 8,-8 H${t.x + W - 8} a8,8 0 0 1 8,8 V${t.y + HEAD} Z`, class: "t-head" }, g);
+    el("text", { x: t.x + 12, y: t.y + 21, class: "t-title" }, g, name);
+    t.cols.forEach(([n, type, k, nullable], i) => {
+      const ry = t.y + HEAD + i * ROW;
+      if (i % 2 === 1) el("rect", { x: t.x + 1, y: ry, width: W - 2, height: ROW, class: "t-alt" }, g);
+      el("text", { x: t.x + 10, y: ry + 15, class: "c-name" + (k === "PK" ? " pk" : "") + (nullable ? " null" : "") }, g, n);
+      el("text", { x: t.x + 178, y: ry + 15, class: "c-type" }, g, type);
+      if (k) el("text", { x: t.x + W - 10, y: ry + 15, "text-anchor": "end", class: "k-" + k.toLowerCase() }, g, k);
+    });
+  }
+})();
+</script>
+</body>
+</html>
